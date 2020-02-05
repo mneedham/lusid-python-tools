@@ -1576,6 +1576,25 @@ class CocoonUtilitiesTests(unittest.TestCase):
                 ["GBP_EXP", "GBP_EXP", "USD_EXP", "USD_IMP"],
             ),
             (
+                "combined_currency_code_inference_multiple_explicit_rules",
+                {
+                    "cash_identifiers": {
+                        "Figi": {
+                            "BBG01": "USD_EXP"
+                        },
+                        "instrument_name": {
+                            "inst1": "GBP_EXP",
+                            "inst2": "GBP_EXP",
+                            "inst3": "USD_EXP",
+                            "inst4": "",
+                        },
+                    },
+                    "implicit": "internal_currency",
+                },
+                False,
+                ["USD_EXP", "GBP_EXP", "USD_EXP", "USD_IMP"],
+            ),
+            (
                 "implicit_currency_code_inference_and_remove",
                 {
                     "cash_identifiers": {
