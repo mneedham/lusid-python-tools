@@ -14,7 +14,6 @@ from lusidtools.cocoon.validator import Validator
 from datetime import datetime
 import pytz
 
-
 class BatchLoader:
     """
     This class contains all the methods used for loading data in batches. The @run_in_executor decorator makes the
@@ -343,21 +342,18 @@ class BatchLoader:
                 if code not in current_portfolio_group.portfolios
             ]
 
-            for code, scope in set(
-                [(resource.code, resource.scope) for resource in new_portfolios]
-            ):
-                api_factory.build(lusid.api.PortfolioGroupsApi).add_portfolio_to_group(
+            for code, scope in set([(resource.code, resource.scope) for resource in new_portfolios]):
+
+                try:
+
+                    return api_factory.build(lusid.api.PortfolioGroupsApi).add_portfolio_to_group(
                     scope=kwargs["scope"],
                     code=kwargs["code"],
                     effective_at=datetime.now(tz=pytz.UTC),
-                    portfolio_id=lusid.models.ResourceId(scope=scope, code=code),
-                )
+                    portfolio_id=lusid.models.ResourceId(scope=scope, code=code),)
 
-            print(
-                api_factory.build(lusid.api.PortfolioGroupsApi).get_portfolio_group(
-                    scope=kwargs["scope"], code=kwargs["code"]
-                )
-            )
+                except lusid.exceptions.ApiException as e:
+                    return e
 
         # Add in here upsert portfolio properties if it does exist
         except lusid.exceptions.ApiException as e:

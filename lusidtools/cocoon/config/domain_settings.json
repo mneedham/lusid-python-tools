@@ -62,13 +62,13 @@
   },
 
     "portfolio_group": {
-      "domain": "portfoliogroups",
+      "domain": "PortfolioGroup",
       "batch_allowed": true,
       "default_batch_size": 2000,
       "top_level_model": "CreatePortfolioGroupRequest",
       "portfolio_specific": true,
       "full_key_format": false,
-      "required_call_attributes": ["scope"],
+      "required_call_attributes": ["scope", "code"],
       "unique_attributes": ["code"]
   }
 }

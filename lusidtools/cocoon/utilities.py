@@ -1331,7 +1331,7 @@ def update_value(d: typing.Union[dict, str], val: typing.Union[str, float]):
 
 
 def group_request_into_one(
-    model_type, request_list: list, attribute_for_grouping: list, batch_index=0
+    model_type: str, request_list: list, attribute_for_grouping: list, batch_index=0
 ):
 
     """
@@ -1341,7 +1341,7 @@ def group_request_into_one(
     back onto the first request in the list. The function returns the modified first request.
     For example, the function can take a list of CreatePortfolioGroupRequests, extract the "values" or portfolios from
     each request, and then add all portfolios back onto the first request in the list.
-    :param lusid.models model_type: the model type which we will modify (eg CreatePortfolioGroupRequest).
+    :param str model_type: the model type which we will modify (eg "CreatePortfolioGroupRequest").
     :param list request_list: a list of requests.
     :param list attribute_for_grouping: the attributes on these requests which will be grouped.
     :return: a single LUSID request
@@ -1351,6 +1351,9 @@ def group_request_into_one(
 
     base_request = request_list[batch_index]
 
+    if type(attribute_for_grouping) == list and len(attribute_for_grouping) ==0:
+        raise ValueError("The provided list of attribute_for_grouping is empty")
+
     for attrib in attribute_for_grouping:
 
         if "list" in getattr(models, model_type).openapi_types[attrib]:
@@ -1358,13 +1361,13 @@ def group_request_into_one(
             # Collect the attributes from each request onto a list
 
             batch_attrib = [
-                attrib
+                lusid_model
                 for nested_list in [
-                    getattr(response, attrib)
-                    for response in request_list
-                    if getattr(response, attrib) is not None
+                    getattr(request, attrib)
+                    for request in request_list
+                    if getattr(request, attrib) is not None
                 ]
-                for attrib in nested_list
+                for lusid_model in nested_list
             ]
 
             # Assign collated values onto the base request
@@ -1377,14 +1380,13 @@ def group_request_into_one(
 
             batch_attrib = dict(
                 [
-                    (attrib, nested_list[attrib])
+                    (lusid_model, nested_list[lusid_model])
                     for nested_list in [
-
-                        getattr(response, attrib)
-                        for response in request_list
-                        if getattr(response, attrib) is not None
+                        getattr(request, attrib)
+                        for request in request_list
+                        if getattr(request, attrib) is not None
                     ]
-                    for attrib in nested_list
+                    for lusid_model in nested_list
                 ]
             )
 
