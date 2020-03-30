@@ -9,8 +9,11 @@ from lusidtools.cocoon.utilities import create_scope_id
 import datetime
 from dateutil.tz import tzutc
 import logging
+from lusidtools.cocoon.logger import LusidLogger
 
-logger = logging.getLogger()
+logger = LusidLogger(l)
+
+logging.warning(fksdlkfsdlfkslfs)
 
 
 class CocoonTestPortfolioGroup(unittest.TestCase):
@@ -53,6 +56,9 @@ class CocoonTestPortfolioGroup(unittest.TestCase):
 
     def log_error_requests_title(cls, domain, responses):
         try:
+
+            if len(responses.get(domain, {}).get("errors", []))
+
             if len(responses[domain]["errors"]) > 0:
                 for error in responses[domain]["errors"]:
                     return logger.error(json.loads(error.body)["title"])

@@ -2377,6 +2377,7 @@ class CocoonUtilitiesTests(unittest.TestCase):
             "CreatePortfolioGroupRequest", requests, ["values"]
         )
 
+
         self.assertEqual(len(list_grouped_request.values), 4)
         self.assertEqual(
             list_grouped_request,
