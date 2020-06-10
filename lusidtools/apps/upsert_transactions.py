@@ -41,14 +41,10 @@ def load_transactions(args):
         scope=args["scope"],
         identifier_mapping=mappings[file_type]["identifier_mapping"],
         mapping_required=mappings[file_type]["required"],
-        mapping_optional=mappings[file_type]["optional"]
-        if "optional" in mappings[file_type].keys()
-        else {},
+        mapping_optional=mappings[file_type].get("optional", {}),
         file_type=file_type,
         batch_size=args["batch_size"],
-        property_columns=mappings[file_type]["property_columns"]
-        if "property_columns" in mappings[file_type].keys()
-        else [],
+        property_columns=mappings[file_type].get("property_columns", [])
     )
 
     # print_response(transactions_response, file_type)
