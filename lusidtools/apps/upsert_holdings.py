@@ -44,7 +44,9 @@ def load_holdings(args):
         mapping_optional=mappings[file_type].get("optional", {}),
         file_type=file_type,
         batch_size=args["batch_size"],
-        property_columns=mappings[file_type].get("property_columns", [])
+        property_columns=mappings[file_type].get("property_columns", []),
+        sub_holding_keys=mappings[file_type].get("sub_holding_keys", []),
+        properties_scope=args["property_scope"]
     )
 
     succ, errors = cocoon_printer.format_holdings_response(holdings_response)
