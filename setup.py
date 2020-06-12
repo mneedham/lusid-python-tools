@@ -33,6 +33,7 @@ setup(
     entry_points={
         "console_scripts": [
             "lusidtools=lusidtools.commands.commands:main",
+            "upsert_portfolios=lusidtools.apps.upsert_portfolios:main",
             "upsert_instruments=lusidtools.apps.upsert_instruments:main",
             "upsert_holdings=lusidtools.apps.upsert_holdings:main",
             "upsert_quotes=lusidtools.apps.upsert_quotes:main",
