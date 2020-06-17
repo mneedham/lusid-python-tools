@@ -44,7 +44,7 @@ def load_transactions(args):
         mapping_optional=mappings[file_type].get("optional", {}),
         file_type=file_type,
         batch_size=args["batch_size"],
-        property_columns=mappings[file_type].get("property_columns", [])
+        property_columns=mappings[file_type].get("property_columns", []),
     )
 
     # print_response(transactions_response, file_type)

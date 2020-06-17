@@ -1003,7 +1003,9 @@ def parse_args(args: dict):
         help=r"full path to mappings.json (see mappings_template.json)",
     )
     ap.add_argument("-s", "--scope", help=r"LUSID scope to act in"),
-    ap.add_argument("-p", "--property_scope", help=r"LUSID scope load properties into", default=None),
+    ap.add_argument(
+        "-p", "--property_scope", help=r"LUSID scope load properties into", default=None
+    ),
     ap.add_argument(
         "-dl",
         "--delimiter",

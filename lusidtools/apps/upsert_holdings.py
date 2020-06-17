@@ -34,7 +34,6 @@ def load_holdings(args):
         logging.info("--dryrun specified as True, exiting before upsert call is made")
         return 0
 
-
     holdings_response = load_from_data_frame(
         api_factory=factory,
         data_frame=holdings,
@@ -46,7 +45,7 @@ def load_holdings(args):
         batch_size=args["batch_size"],
         property_columns=mappings[file_type].get("property_columns", []),
         sub_holding_keys=mappings[file_type].get("sub_holding_keys", []),
-        properties_scope=args["property_scope"]
+        properties_scope=args["property_scope"],
     )
 
     succ, errors = cocoon_printer.format_holdings_response(holdings_response)

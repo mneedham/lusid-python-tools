@@ -56,7 +56,7 @@ def load_instruments(args):
         file_type=file_type,
         identifier_mapping=mappings[file_type]["identifier_mapping"],
         batch_size=args["batch_size"],
-        property_columns=mappings[file_type].get("property_columns", [])
+        property_columns=mappings[file_type].get("property_columns", []),
     )
 
     succ, errors, failed = cocoon_printer.format_instruments_response(
