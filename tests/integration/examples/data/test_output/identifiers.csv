@@ -1,0 +1,16 @@
+identifier_type,property_key,is_unique_identifier_type
+ShareClassFigi,Instrument/default/ShareClassFigi,False
+Ticker,Instrument/default/Ticker,False
+ClientInternal,Instrument/default/ClientInternal,True
+RIC,Instrument/default/RIC,False
+EdiKey,Instrument/default/EdiKey,True
+Sedol,Instrument/default/Sedol,False
+Cusip,Instrument/default/Cusip,False
+LusidInstrumentId,Instrument/default/LusidInstrumentId,True
+Currency,Instrument/default/Currency,True
+SecurityNumber,Instrument/default/SecurityNumber,True
+Figi,Instrument/default/Figi,True
+Wertpapier,Instrument/default/Wertpapier,False
+CompositeFigi,Instrument/default/CompositeFigi,False
+QuotePermId,Instrument/default/QuotePermId,True
+Isin,Instrument/default/Isin,False
