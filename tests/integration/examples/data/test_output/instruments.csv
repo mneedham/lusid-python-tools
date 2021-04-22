@@ -1,4 +1,4 @@
-instrument_name,client_internal,currency,figi,market_sector
+instrument_name,client_internal,currency,figi,asset_class
 Amazon_Nasdaq_AMZN,imd_34634534,USD,BBG000BVPXP1,equity
 Apple_Nasdaq_AAPL,imd_35345345,USD,BBG000B9XVV8,equity
 BP_LondonStockEx_BP,imd_43535553,GBP,BBG000C05BD1,equity
