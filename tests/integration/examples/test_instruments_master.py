@@ -44,7 +44,9 @@ class InstrumentsMaster(unittest.TestCase):
         unique_identifiers = identifiers.loc[identifiers["is_unique_identifier_type"]]
         unique_identifiers = unique_identifiers.drop(["is_unique_identifier_type"], axis=1)
         # end::identifiers[]
+
         self.write_to_test_output(unique_identifiers, "identifiers.csv")
+        self.assertGreater(unique_identifiers.shape[0], 0)
 
         # tag::import-instruments[]
         identifier_columns = [('figi', 'Figi'), ('client_internal', 'ClientInternal')]
@@ -66,7 +68,8 @@ class InstrumentsMaster(unittest.TestCase):
             for _, instrument in response.values.items()
         ])
         # end::import-instruments[]
-        self.write_to_test_output(luids.head(10), "luids.csv")
+        self.write_to_test_output(luids, "luids.csv")
+        self.assertEqual(luids.shape[0], 9)
 
         # tag::get-instrument[]
         response = instruments_api.get_instrument(identifier_type='Figi', identifier='BBG000C05BD1')
@@ -77,11 +80,13 @@ class InstrumentsMaster(unittest.TestCase):
              "LUID": response.lusid_instrument_id}
         ])
         # end::get-instrument[]
-        self.write_to_test_output(instrument_df.head(10), "get_instrument.csv")
+        self.write_to_test_output(instrument_df, "get_instrument.csv")
+        self.assertEqual(instrument_df.shape[0], 1)
+        self.assertEqual(instrument_df["Instrument"].values[0], "BP_LondonStockEx_BP")
 
         # tag::get-instrument-client-internal[]
         response = instruments_api.get_instrument(identifier_type='ClientInternal', identifier='imd_43535553')
-        
+
         instrument_df = pd.DataFrame([
             {"Figi": response.identifiers["Figi"],
              "Instrument": response.name,
@@ -90,6 +95,8 @@ class InstrumentsMaster(unittest.TestCase):
         ])
         # end::get-instrument-client-internal[]
         self.write_to_test_output(instrument_df.head(10), "get_instrument_client_internal.csv")
+        self.assertEqual(instrument_df.shape[0], 1)
+        self.assertEqual(instrument_df["Instrument"].values[0], "BP_LondonStockEx_BP")
 
         # tag::get-instruments[]
         response = instruments_api.get_instruments(
@@ -104,7 +111,9 @@ class InstrumentsMaster(unittest.TestCase):
             for _, instrument in response.values.items()
         ])
         # end::get-instruments[]
-        self.write_to_test_output(instruments_df.head(10), "get_instruments.csv")
+        self.write_to_test_output(instruments_df, "get_instruments.csv")
+        self.assertEqual(instruments_df.shape[0], 2)
+        self.assertCountEqual(instruments_df["Instrument"].values, ["BP_LondonStockEx_BP", "USTreasury_6.875_2025"])
 
         # tag::create-property[]
         property_definitions_api = api_factory.build(lusid.api.PropertyDefinitionsApi)
@@ -123,6 +132,7 @@ class InstrumentsMaster(unittest.TestCase):
             create_property_definition_request=property_request)
         asset_class_property_key = response.key
         # end::create-property[]
+        self.assertIsNotNone(asset_class_property_key)
 
         # tag::upsert-properties[]
         requests = []
@@ -154,16 +164,8 @@ class InstrumentsMaster(unittest.TestCase):
              "Asset Class": instrument.properties[0].value.label_value}
             for _, instrument in response.values.items()])
         # end::get-instrument-properties[]
-        self.write_to_test_output(instrument_properties_df.head(10), "get_instruments_properties.csv")
-
-        # tag::delete-instrument-properties[]
-        instruments_api.delete_instrument_properties(
-            identifier_type='Figi',
-            identifier="BBG000C05BD1",
-            request_body=[asset_class_property_key],
-            effective_at=datetime.now(pytz.UTC).isoformat()
-        )
-        # end::delete-instrument-properties[]
+        self.write_to_test_output(instrument_properties_df, "get_instruments_properties.csv")
+        self.assertCountEqual(instrument_properties_df["Asset Class"].values, ["equity", "govt"])
 
         # tag::search-instrument[]
         search_api = api_factory.build(lusid.api.SearchApi)
@@ -178,7 +180,8 @@ class InstrumentsMaster(unittest.TestCase):
              "LUID": instrument.identifiers['LusidInstrumentId'].value}
             for instrument in response[0].mastered_instruments])
         # end::search-instrument[]
-        self.write_to_test_output(search_instruments_df.head(10), "search_instruments.csv")
+        self.write_to_test_output(search_instruments_df, "search_instruments.csv")
+        self.assertEqual(search_instruments_df.shape[0], 6)
 
         # tag::update-instrument-identifier[]
         request = models.UpdateInstrumentIdentifierRequest(
@@ -206,6 +209,7 @@ class InstrumentsMaster(unittest.TestCase):
         ])
         # end::get-instruments-now[]
         self.write_to_test_output(instruments_df_now, "get_instruments_now.csv")
+        self.assertEqual(instruments_df_now["ClientInternal"].values[0], "imd_43535553")
 
         # tag::get-instruments-later[]
         response = instruments_api.get_instruments(
@@ -222,6 +226,16 @@ class InstrumentsMaster(unittest.TestCase):
         ])
         # end::get-instruments-later[]
         self.write_to_test_output(instruments_df_later, "get_instruments_later.csv")
+        self.assertEqual(instruments_df_later["ClientInternal"].values[0], "imd_43535554")
+
+        # tag::delete-instrument-properties[]
+        instruments_api.delete_instrument_properties(
+            identifier_type='Figi',
+            identifier="BBG000C05BD1",
+            request_body=[asset_class_property_key],
+            effective_at=datetime.now(pytz.UTC).isoformat()
+        )
+        # end::delete-instrument-properties[]
 
         # tag::delete-instruments[]
         for figi in instruments.loc[:, 'figi'].values:
