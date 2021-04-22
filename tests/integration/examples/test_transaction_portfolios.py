@@ -24,8 +24,6 @@ class InstrumentsMaster(unittest.TestCase):
         )
         # end::api-factory[]
 
-        scope = f"UK-Trading-{uuid.uuid4()}"
-
         # tag::create-apis[]
         transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
         property_definitions_api = api_factory.build(lusid.api.PropertyDefinitionsApi)
@@ -33,6 +31,7 @@ class InstrumentsMaster(unittest.TestCase):
         # end::create-apis[]
 
         # tag::create-portfolio-default[]
+        scope = f"UK-Trading-{uuid.uuid4()}"
         portfolio = transaction_portfolios_api.create_portfolio(
             scope=scope,
             create_transaction_portfolio_request=models.CreateTransactionPortfolioRequest(
