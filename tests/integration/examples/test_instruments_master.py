@@ -119,10 +119,11 @@ class InstrumentsMaster(unittest.TestCase):
         # tag::upsert-properties[]
         requests = []
         for row in instruments.iterrows():
+            print(row)
             instrument = row[1]
             asset_class_property = models.ModelProperty(
                 key=asset_class_property_key,
-                value=models.PropertyValue(label_value=instrument['market_sector'])
+                value=models.PropertyValue(label_value=instrument['asset_class'])
             )
             requests.append(models.UpsertInstrumentPropertyRequest(
                 identifier_type='Figi',
