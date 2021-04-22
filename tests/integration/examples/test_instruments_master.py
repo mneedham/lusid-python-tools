@@ -29,10 +29,10 @@ class InstrumentsMaster(unittest.TestCase):
         # end::instruments-file[]
         instruments_file = Path(__file__).parent.joinpath(instruments_file)
 
-        # tag:load-instruments[]
+        # tag::load-instruments[]
         instruments = pd.read_csv(instruments_file)
         instruments.head(10)
-        # end:load-instruments[]
+        # end::load-instruments[]
         self.write_to_test_output(instruments, "instruments.csv")
 
         # tag::instruments-api[]
@@ -47,11 +47,8 @@ class InstrumentsMaster(unittest.TestCase):
         # end::identifiers[]
         self.write_to_test_output(unique_identifiers, "identifiers.csv")
 
-        # tag:import-instruments[]
-        identifier_columns = [
-            ('figi', 'Figi'),
-            ('client_internal', 'ClientInternal')
-        ]
+        # tag::import-instruments[]
+        identifier_columns = [('figi', 'Figi'), ('client_internal', 'ClientInternal')]
         definitions = {}
         for _, instrument in instruments.iterrows():
             identifiers = {
@@ -69,12 +66,11 @@ class InstrumentsMaster(unittest.TestCase):
              "LUID": instrument.lusid_instrument_id}
             for _, instrument in response.values.items()
         ])
-        luids.head(10)
-        # end:import-instruments[]
+        # end::import-instruments[]
         self.write_to_test_output(luids.head(10), "luids.csv")
 
         # tag::get-instrument[]
-        response = api_factory.build(lusid.api.InstrumentsApi).get_instrument(
+        response = instruments_api.get_instrument(
             identifier_type='Figi',
             identifier='BBG000C05BD1')
         instrument_df = pd.DataFrame([
@@ -87,7 +83,7 @@ class InstrumentsMaster(unittest.TestCase):
         self.write_to_test_output(instrument_df.head(10), "get_instrument.csv")
 
         # tag::get-instrument-client-internal[]
-        response = api_factory.build(lusid.api.InstrumentsApi).get_instrument(
+        response = instruments_api.get_instrument(
             identifier_type='ClientInternal',
             identifier='imd_43535553')
         instrument_df = pd.DataFrame([
@@ -100,7 +96,7 @@ class InstrumentsMaster(unittest.TestCase):
         self.write_to_test_output(instrument_df.head(10), "get_instrument_client_internal.csv")
 
         # tag::get-instruments[]
-        response = api_factory.build(lusid.api.InstrumentsApi).get_instruments(
+        response = instruments_api.get_instruments(
             identifier_type='Figi',
             request_body=['BBG000C05BD1', 'BBG000DQQNJ8'])
         instruments_df = pd.DataFrame([
@@ -114,6 +110,8 @@ class InstrumentsMaster(unittest.TestCase):
         self.write_to_test_output(instruments_df.head(10), "get_instruments.csv")
 
         # tag::create-property[]
+        property_definitions_api = api_factory.build(lusid.api.PropertyDefinitionsApi)
+
         properties_scope = f"custom_properties_{uuid.uuid4()}"
         property_request = models.CreatePropertyDefinitionRequest(
             domain='Instrument',
@@ -124,7 +122,6 @@ class InstrumentsMaster(unittest.TestCase):
             life_time='TimeVariant',
             data_type_id=models.ResourceId(scope='system', code='string'))
 
-        property_definitions_api = api_factory.build(lusid.api.PropertyDefinitionsApi)
         property_response = property_definitions_api.create_property_definition(
             create_property_definition_request=property_request)
         asset_class_property_key = property_response.key
@@ -147,7 +144,7 @@ class InstrumentsMaster(unittest.TestCase):
         # end::upsert-properties[]
 
         # tag::get-instrument-properties[]
-        response = api_factory.build(lusid.api.InstrumentsApi).get_instruments(
+        response = instruments_api.get_instruments(
             identifier_type='Figi',
             request_body=['BBG000C05BD1', 'BBG000DQQNJ8'],
             property_keys=[asset_class_property_key]
