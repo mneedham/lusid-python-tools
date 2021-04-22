@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 
 class InstrumentsMaster(unittest.TestCase):
     def write_to_test_output(self, df, file_name):
-        df.to_csv(Path(__file__).parent.joinpath(f"data/test_output/{file_name}"), index=False)
+        df.to_csv(Path(__file__).parent.joinpath(f"data/test_instruments_master/test_output/{file_name}"), index=False)
 
     def test_maintain_instruments_master(self) -> None:
         # tag::api-factory[]
@@ -25,7 +25,7 @@ class InstrumentsMaster(unittest.TestCase):
         # end::api-factory[]
 
         # tag::instruments-file[]
-        instruments_file = "data/instruments.csv"
+        instruments_file = "data/test_instruments_master/instruments.csv"
         # end::instruments-file[]
         instruments_file = Path(__file__).parent.joinpath(instruments_file)
 
