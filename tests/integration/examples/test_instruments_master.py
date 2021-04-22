@@ -31,7 +31,6 @@ class InstrumentsMaster(unittest.TestCase):
 
         # tag::load-instruments[]
         instruments = pd.read_csv(instruments_file)
-        instruments.head(10)
         # end::load-instruments[]
         self.write_to_test_output(instruments, "instruments.csv")
 
@@ -82,6 +81,7 @@ class InstrumentsMaster(unittest.TestCase):
 
         # tag::get-instrument-client-internal[]
         response = instruments_api.get_instrument(identifier_type='ClientInternal', identifier='imd_43535553')
+        
         instrument_df = pd.DataFrame([
             {"Figi": response.identifiers["Figi"],
              "Instrument": response.name,
@@ -95,6 +95,7 @@ class InstrumentsMaster(unittest.TestCase):
         response = instruments_api.get_instruments(
             identifier_type='Figi',
             request_body=['BBG000C05BD1', 'BBG000DQQNJ8'])
+
         instruments_df = pd.DataFrame([
             {"Figi": instrument.identifiers["Figi"],
              "Instrument": instrument.name,
@@ -118,9 +119,9 @@ class InstrumentsMaster(unittest.TestCase):
             life_time='TimeVariant',
             data_type_id=models.ResourceId(scope='system', code='string'))
 
-        property_response = property_definitions_api.create_property_definition(
+        response = property_definitions_api.create_property_definition(
             create_property_definition_request=property_request)
-        asset_class_property_key = property_response.key
+        asset_class_property_key = response.key
         # end::create-property[]
 
         # tag::upsert-properties[]
@@ -143,8 +144,8 @@ class InstrumentsMaster(unittest.TestCase):
         response = instruments_api.get_instruments(
             identifier_type='Figi',
             request_body=['BBG000C05BD1', 'BBG000DQQNJ8'],
-            property_keys=[asset_class_property_key]
-        )
+            property_keys=[asset_class_property_key])
+
         instrument_properties_df = pd.DataFrame([
             {"Figi": instrument.identifiers["Figi"],
              "Instrument": instrument.name,
@@ -183,6 +184,7 @@ class InstrumentsMaster(unittest.TestCase):
         request = models.UpdateInstrumentIdentifierRequest(
             type='ClientInternal', value='imd_43535554',
             effective_at=(datetime.now(pytz.UTC) + timedelta(minutes=10)).isoformat())
+
         instruments_api.update_instrument_identifier(
             identifier_type='Figi',
             identifier='BBG000C05BD1',
@@ -194,6 +196,7 @@ class InstrumentsMaster(unittest.TestCase):
             identifier_type='Figi',
             effective_at=datetime.now(pytz.UTC).isoformat(),
             request_body=['BBG000C05BD1'])
+
         instruments_df_now = pd.DataFrame([
             {"Figi": instrument.identifiers["Figi"],
              "Instrument": instrument.name,
@@ -209,6 +212,7 @@ class InstrumentsMaster(unittest.TestCase):
             identifier_type='Figi',
             effective_at=(datetime.now(pytz.UTC) + timedelta(minutes=11)).isoformat(),
             request_body=['BBG000C05BD1'])
+
         instruments_df_later = pd.DataFrame([
             {"Figi": instrument.identifiers["Figi"],
              "Instrument": instrument.name,
