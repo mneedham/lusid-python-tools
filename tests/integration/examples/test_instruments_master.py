@@ -24,17 +24,6 @@ class InstrumentsMaster(unittest.TestCase):
         )
         # end::api-factory[]
 
-        # tag::instruments-api[]
-        instruments_api = api_factory.build(lusid.api.InstrumentsApi)
-        # end::instruments-api[]
-
-        # tag::identifiers[]
-        response = instruments_api.get_instrument_identifier_types()
-        identifiers = pd.DataFrame(response.to_dict()["values"])
-        unique_identifiers = identifiers.loc[identifiers["is_unique_identifier_type"]]
-        # end::identifiers[]
-        self.write_to_test_output(unique_identifiers, "identifiers.csv")
-
         # tag::instruments-file[]
         instruments_file = "data/instruments.csv"
         # end::instruments-file[]
@@ -44,13 +33,23 @@ class InstrumentsMaster(unittest.TestCase):
         instruments = pd.read_csv(instruments_file)
         instruments.head(10)
         # end:load-instruments[]
-        self.write_to_test_output(instruments.head(10), "instruments.csv")
+        self.write_to_test_output(instruments, "instruments.csv")
+
+        # tag::instruments-api[]
+        instruments_api = api_factory.build(lusid.api.InstrumentsApi)
+        # end::instruments-api[]
+
+        # tag::identifiers[]
+        response = instruments_api.get_instrument_identifier_types()
+        identifiers = pd.DataFrame(response.to_dict()["values"])
+        unique_identifiers = identifiers.loc[identifiers["is_unique_identifier_type"]]
+        unique_identifiers = unique_identifiers.drop(["is_unique_identifier_type"], axis=1)
+        # end::identifiers[]
+        self.write_to_test_output(unique_identifiers, "identifiers.csv")
 
         # tag:import-instruments[]
         identifier_columns = [
-            ('isin', 'Isin'),
             ('figi', 'Figi'),
-            ('ticker', 'Ticker'),
             ('client_internal', 'ClientInternal')
         ]
         definitions = {}
