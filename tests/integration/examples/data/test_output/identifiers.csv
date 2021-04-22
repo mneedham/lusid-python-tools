@@ -1,8 +1,8 @@
 identifier_type,property_key
-Figi,Instrument/default/Figi
-QuotePermId,Instrument/default/QuotePermId
 SecurityNumber,Instrument/default/SecurityNumber
-EdiKey,Instrument/default/EdiKey
-LusidInstrumentId,Instrument/default/LusidInstrumentId
 ClientInternal,Instrument/default/ClientInternal
+Figi,Instrument/default/Figi
+LusidInstrumentId,Instrument/default/LusidInstrumentId
+QuotePermId,Instrument/default/QuotePermId
 Currency,Instrument/default/Currency
+EdiKey,Instrument/default/EdiKey

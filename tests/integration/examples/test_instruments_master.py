@@ -8,7 +8,7 @@ from lusid import models
 import pytz
 import pandas as pd
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 # end::imports[]
 
 
@@ -70,9 +70,7 @@ class InstrumentsMaster(unittest.TestCase):
         self.write_to_test_output(luids.head(10), "luids.csv")
 
         # tag::get-instrument[]
-        response = instruments_api.get_instrument(
-            identifier_type='Figi',
-            identifier='BBG000C05BD1')
+        response = instruments_api.get_instrument(identifier_type='Figi', identifier='BBG000C05BD1')
         instrument_df = pd.DataFrame([
             {"Figi": response.identifiers["Figi"],
              "Instrument": response.name,
@@ -83,9 +81,7 @@ class InstrumentsMaster(unittest.TestCase):
         self.write_to_test_output(instrument_df.head(10), "get_instrument.csv")
 
         # tag::get-instrument-client-internal[]
-        response = instruments_api.get_instrument(
-            identifier_type='ClientInternal',
-            identifier='imd_43535553')
+        response = instruments_api.get_instrument(identifier_type='ClientInternal', identifier='imd_43535553')
         instrument_df = pd.DataFrame([
             {"Figi": response.identifiers["Figi"],
              "Instrument": response.name,
@@ -184,7 +180,9 @@ class InstrumentsMaster(unittest.TestCase):
         self.write_to_test_output(search_instruments_df.head(10), "search_instruments.csv")
 
         # tag::update-instrument-identifier[]
-        request = models.UpdateInstrumentIdentifierRequest(type='ClientInternal', value='imd_43535554')
+        request = models.UpdateInstrumentIdentifierRequest(
+            type='ClientInternal', value='imd_43535554',
+            effective_at=(datetime.now(pytz.UTC) + timedelta(minutes=10)).isoformat())
         response = instruments_api.update_instrument_identifier(
             identifier_type='Figi',
             identifier='BBG000C05BD1',
@@ -196,6 +194,36 @@ class InstrumentsMaster(unittest.TestCase):
              "LUID": response.lusid_instrument_id}])
         # end::update-instrument-identifier[]
         self.write_to_test_output(updated_identifiers_df, "updated_identifiers.csv")
+
+        # tag::get-instruments-now[]
+        response = instruments_api.get_instruments(
+            identifier_type='Figi',
+            effective_at=datetime.now(pytz.UTC).isoformat(),
+            request_body=['BBG000C05BD1'])
+        instruments_df_now = pd.DataFrame([
+            {"Figi": instrument.identifiers["Figi"],
+             "Instrument": instrument.name,
+             "ClientInternal": instrument.identifiers["ClientInternal"],
+             "LUID": instrument.lusid_instrument_id}
+            for _, instrument in response.values.items()
+        ])
+        # end::get-instruments-now[]
+        self.write_to_test_output(instruments_df_now, "get_instruments_now.csv")
+
+        # tag::get-instruments-later[]
+        response = instruments_api.get_instruments(
+            identifier_type='Figi',
+            effective_at=(datetime.now(pytz.UTC) + timedelta(minutes=11)).isoformat(),
+            request_body=['BBG000C05BD1'])
+        instruments_df_later = pd.DataFrame([
+            {"Figi": instrument.identifiers["Figi"],
+             "Instrument": instrument.name,
+             "ClientInternal": instrument.identifiers["ClientInternal"],
+             "LUID": instrument.lusid_instrument_id}
+            for _, instrument in response.values.items()
+        ])
+        # end::get-instruments-later[]
+        self.write_to_test_output(instruments_df_later, "get_instruments_later.csv")
 
         # tag::delete-instruments[]
         for figi in instruments.loc[:, 'figi'].values:
