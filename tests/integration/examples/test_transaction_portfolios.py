@@ -8,7 +8,7 @@ from lusid import models
 import pytz
 import pandas as pd
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 # end::imports[]
 
 
