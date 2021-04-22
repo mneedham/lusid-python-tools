@@ -97,7 +97,7 @@ class InstrumentsMaster(unittest.TestCase):
              "LUID": response.lusid_instrument_id}
         ])
         # end::get-instrument-client-internal[]
-        self.write_to_test_output(instrument_df.head(10), "get_instrument-client-internal.csv")
+        self.write_to_test_output(instrument_df.head(10), "get_instrument_client_internal.csv")
 
         # tag::get-instruments[]
         response = api_factory.build(lusid.api.InstrumentsApi).get_instruments(
