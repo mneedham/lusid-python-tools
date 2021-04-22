@@ -1,13 +1,15 @@
 import unittest
 from pathlib import Path
 
+# tag::imports[]
 import lusid
-import pytz
 from lusid import models
 
+import pytz
 import pandas as pd
-from datetime import datetime, timedelta, time
 import uuid
+from datetime import datetime
+# end::imports[]
 
 
 class InstrumentsMaster(unittest.TestCase):
