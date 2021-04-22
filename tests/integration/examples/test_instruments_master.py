@@ -183,17 +183,11 @@ class InstrumentsMaster(unittest.TestCase):
         request = models.UpdateInstrumentIdentifierRequest(
             type='ClientInternal', value='imd_43535554',
             effective_at=(datetime.now(pytz.UTC) + timedelta(minutes=10)).isoformat())
-        response = instruments_api.update_instrument_identifier(
+        instruments_api.update_instrument_identifier(
             identifier_type='Figi',
             identifier='BBG000C05BD1',
             update_instrument_identifier_request=request)
-        updated_identifiers_df = pd.DataFrame([
-            {"Figi": response.identifiers["Figi"],
-             "Instrument": response.name,
-             "ClientInternal": response.identifiers["ClientInternal"],
-             "LUID": response.lusid_instrument_id}])
         # end::update-instrument-identifier[]
-        self.write_to_test_output(updated_identifiers_df, "updated_identifiers.csv")
 
         # tag::get-instruments-now[]
         response = instruments_api.get_instruments(
