@@ -26,9 +26,11 @@ class InstrumentsMaster(unittest.TestCase):
 
         scope = f"UK-Trading-{uuid.uuid4()}"
 
-        # tag::tx-portfolios-api[]
+        # tag::create-apis[]
         transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
-        # end::tx-portfolios-api[]
+        property_definitions_api = api_factory.build(lusid.api.PropertyDefinitionsApi)
+        portfolios_api = api_factory.build(lusid.api.PortfoliosApi)
+        # end::create-apis[]
 
         # tag::create-portfolio-default[]
         portfolio = transaction_portfolios_api.create_portfolio(
@@ -46,8 +48,6 @@ class InstrumentsMaster(unittest.TestCase):
         self.assertIsNotNone(portfolio_code)
 
         # tag::create-property[]
-        property_definitions_api = api_factory.build(lusid.api.PropertyDefinitionsApi)
-
         response = property_definitions_api.create_property_definition(
             create_property_definition_request=models.CreatePropertyDefinitionRequest(
                 domain="Portfolio",
@@ -63,7 +63,6 @@ class InstrumentsMaster(unittest.TestCase):
         self.assertIsNotNone(portfolio_manager_property)
 
         # tag::update-portfolio[]
-        portfolios_api = api_factory.build(lusid.api.PortfoliosApi)
         portfolios_api.upsert_portfolio_properties(
             scope=scope,
             code=portfolio_code,
