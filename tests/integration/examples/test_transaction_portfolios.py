@@ -12,7 +12,7 @@ from datetime import datetime
 # end::imports[]
 
 
-class InstrumentsMaster(unittest.TestCase):
+class TransactionPortfolios(unittest.TestCase):
     def write_to_test_output(self, df, file_name):
         df.to_csv(Path(__file__).parent.joinpath(f"data/test_transaction_portfolios/test_output/{file_name}"), index=False)
 
