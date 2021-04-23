@@ -1,5 +1,6 @@
 import unittest
 from pathlib import Path
+import tests.integration.examples.lusid_utils as lusid_utils
 
 # tag::imports[]
 import lusid
@@ -12,15 +13,8 @@ class ConfigureTransactionTypes(unittest.TestCase):
         df.to_csv(Path(__file__).parent.joinpath(f"data/test_configure_transaction_types/test_output/{file_name}"),
                   index=False)
 
-    def test_maintain_instruments_master(self) -> None:
-        # tag::secrets-file[]
-        secrets_file = "/path/to/secrets.json"
-        # end::secrets-file[]
-        secrets_file = Path(__file__).parent.parent.parent.joinpath("secrets.json")
-
-        # tag::api-factory[]
-        api_factory = lusid.utilities.ApiClientFactory(api_secrets_filename=secrets_file)
-        # end::api-factory[]
+    def test_configure_transaction_types(self) -> None:
+        api_factory = lusid_utils.api_factory
 
         # tag::create-apis[]
         system_configuration_api = api_factory.build(lusid.api.SystemConfigurationApi)
