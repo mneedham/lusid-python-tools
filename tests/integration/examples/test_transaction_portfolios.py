@@ -23,9 +23,7 @@ class InstrumentsMaster(unittest.TestCase):
         secrets_file = Path(__file__).parent.parent.parent.joinpath("secrets.json")
 
         # tag::api-factory[]
-        api_factory = lusid.utilities.ApiClientFactory(
-            api_secrets_filename=secrets_file
-        )
+        api_factory = lusid.utilities.ApiClientFactory(api_secrets_filename=secrets_file)
         # end::api-factory[]
 
         # tag::create-apis[]
