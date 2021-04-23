@@ -3,14 +3,7 @@ from pathlib import Path
 
 # tag::imports[]
 import lusid
-from lusid import models
-
-import pytz
 import pandas as pd
-import uuid
-from datetime import datetime
-
-
 # end::imports[]
 
 
@@ -39,7 +32,7 @@ class ConfigureTransactionTypes(unittest.TestCase):
         transaction_types = response.transaction_configs
         aliases = [txn_type.aliases for txn_type in transaction_types]
         list_aliases = pd.DataFrame([alias.to_dict() for sublist in aliases for alias in sublist])
-        # tag::get-transaction-types[]
+        # end::get-transaction-types[]
         self.write_to_test_output(list_aliases, "transaction_types.csv")
 
 
