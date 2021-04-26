@@ -1,0 +1,2 @@
+Code,Domain,Life Time,Data Type
+portfolio_manager_name,Portfolio,Perpetual,"{'code': 'string', 'scope': 'system'}"

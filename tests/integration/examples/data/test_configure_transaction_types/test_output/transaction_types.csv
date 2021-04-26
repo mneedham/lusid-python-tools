@@ -38,3 +38,4 @@ Dividend,Dividend Income,Dividend,default,Longer
 DI,DIVIDEND INCOME,Dividend,alt1,Longer
 DividendExpense,Dividend Expense,Dividend,default,Shorter
 DE,DIVIDEND EXPENSE,Dividend,alt1,Shorter
+B,Purchase,Basic,default,LongLonger
