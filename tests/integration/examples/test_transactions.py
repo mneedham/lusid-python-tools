@@ -93,7 +93,8 @@ class Transactions(unittest.TestCase):
         # tag::get-transactions[]
         response = transaction_portfolios_api.get_transactions(scope=scope, code=portfolio_code)
         tx_response = pd.DataFrame([
-            {k: v for k, v in value.to_dict().items() if k not in ["properties", "counterparty_id"]}
+            {k: v for k, v in value.to_dict().items()
+             if k not in ["properties", "counterparty_id", "exchange_rate", "source"]}
             for value in response.values
         ])
         # end::get-transactions[]
