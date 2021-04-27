@@ -63,12 +63,7 @@ class Holdings(unittest.TestCase):
             for _, instrument in instruments.iterrows()
         }
 
-        holding_response = instruments_api.upsert_instruments(request_body=definitions)
-        luid_to_name = {
-            holding_response.values[key].to_dict()["lusid_instrument_id"]: holding_response.values[key].to_dict()[
-                "name"]
-            for key in holding_response.values
-        }
+        instruments_api.upsert_instruments(request_body=definitions)
         # end::import-instruments[]
 
         # tag::import-transactions[]
