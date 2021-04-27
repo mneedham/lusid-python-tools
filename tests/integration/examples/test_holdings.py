@@ -87,9 +87,8 @@ class Holdings(unittest.TestCase):
                         amount=txn["net_money"], currency=txn["instrument_currency"]
                     )))
 
-            transaction_portfolios_api.upsert_transactions(
-                scope=scope, code=portfolio_code, transaction_request=transactions_request)
-
+        transaction_portfolios_api.upsert_transactions(
+            scope=scope, code=portfolio_code, transaction_request=transactions_request)
         # end::import-transactions[]
 
         # tag::format-holdings[]
@@ -99,7 +98,6 @@ class Holdings(unittest.TestCase):
                 "Amount": value.cost.amount,
                 "Units": value.units
             } for value in response.values])
-
         # end::format-holdings[]
 
         # tag::get-holdings-funds-loaded[]
