@@ -10,12 +10,14 @@ import pytz
 import pandas as pd
 import uuid
 from datetime import datetime
+
+
 # end::imports[]
 
 
-class Transactions(unittest.TestCase):
+class Holdings(unittest.TestCase):
     def write_to_test_output(self, df, file_name):
-        df.to_csv(Path(__file__).parent.joinpath(f"data/test_transactions/test_output/{file_name}"), index=False)
+        df.to_csv(Path(__file__).parent.joinpath(f"data/test_holdings/test_output/{file_name}"), index=False)
 
     def test_transactions(self) -> None:
         api_factory = lusid_utils.api_factory
@@ -61,7 +63,11 @@ class Transactions(unittest.TestCase):
             for _, instrument in instruments.iterrows()
         }
 
-        instruments_api.upsert_instruments(request_body=definitions)
+        response = instruments_api.upsert_instruments(request_body=definitions)
+        luid_to_name = {
+            response.values[key].to_dict()["lusid_instrument_id"]: response.values[key].to_dict()["name"]
+            for key in response.values
+        }
         # end::import-instruments[]
 
         # tag::import-transactions[]
@@ -89,12 +95,15 @@ class Transactions(unittest.TestCase):
                 scope=scope, code=portfolio_code, transaction_request=transactions_request)
         # end::import-transactions[]
 
-        # tag::get-transactions[]
-        response = transaction_portfolios_api.get_transactions(scope=scope, code=portfolio_code)
-        tx_response = pd.DataFrame([
-            {k: v for k, v in value.to_dict().items()
-             if k not in ["properties", "counterparty_id", "exchange_rate", "source"]}
+        # tag::get-holdings[]
+        response = transaction_portfolios_api.get_holdings(scope=scope, code=portfolio_code)
+        holdings = pd.DataFrame([
+            {k: v for k, v in (value.to_dict().items())
+             if k in ["instrument_uid", "units", "cost"]}
             for value in response.values
         ])
-        # end::get-transactions[]
-        self.write_to_test_output(tx_response, "transactions_response.csv")
+        holdings.insert(1, "instrument", holdings["instrument_uid"].apply(lambda x: luid_to_name.get(x, "Cash")))
+        holdings.loc[:, "cost"] = holdings["cost"].apply(lambda x: x["amount"])
+        # end::get-holdings[]
+        self.write_to_test_output(holdings, "holdings.csv")
+        self.assertEqual(holdings.shape[0], 4)
