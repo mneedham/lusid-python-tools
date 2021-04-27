@@ -105,7 +105,7 @@ class Holdings(unittest.TestCase):
                 "Units": value.units
             } for value in response.values])
 
-        # tag::format-holdings[]
+        # end::format-holdings[]
 
         # tag::get-holdings-funds-loaded[]
         holding_response = transaction_portfolios_api.get_holdings(
