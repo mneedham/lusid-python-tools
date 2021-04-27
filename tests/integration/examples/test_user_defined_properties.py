@@ -11,11 +11,11 @@ import pandas as pd
 # end::imports[]
 
 
-class TransactionPortfolios(unittest.TestCase):
+class UserDefinedProperties(unittest.TestCase):
     def write_to_test_output(self, df, file_name):
         df.to_csv(Path(__file__).parent.joinpath(f"data/test_user_defined_properties/test_output/{file_name}"), index=False)
 
-    def test_transaction_portfolios(self) -> None:
+    def test_user_defined_properties(self) -> None:
         api_factory = lusid_utils.api_factory
 
         # tag::create-apis[]
