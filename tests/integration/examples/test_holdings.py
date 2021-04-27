@@ -10,8 +10,7 @@ import pytz
 import pandas as pd
 import uuid
 from datetime import datetime
-
-
+from dateutil.parser import parse
 # end::imports[]
 
 
@@ -79,8 +78,8 @@ class Holdings(unittest.TestCase):
                     transaction_id=txn["txn_id"],
                     type=txn["transaction_type"],
                     instrument_identifiers=instrument_identifier,
-                    transaction_date=txn["trade_date"],
-                    settlement_date=txn["trade_date"],
+                    transaction_date=pytz.UTC.localize(parse(txn["trade_date"])).isoformat(),
+                    settlement_date=pytz.UTC.localize(parse(txn["trade_date"])).isoformat(),
                     units=txn["quantity"],
                     transaction_price=models.TransactionPrice(price=txn["price"], type="Price"),
                     total_consideration=models.CurrencyAndAmount(
