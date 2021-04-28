@@ -8,12 +8,15 @@ from lusid import models
 import uuid
 
 import pandas as pd
+
+
 # end::imports[]
 
 
 class UserDefinedProperties(unittest.TestCase):
     def write_to_test_output(self, df, file_name):
-        df.to_csv(Path(__file__).parent.joinpath(f"data/test_user_defined_properties/test_output/{file_name}"), index=False)
+        df.to_csv(Path(__file__).parent.joinpath(f"data/test_user_defined_properties/test_output/{file_name}"),
+                  index=False)
 
     def test_user_defined_properties(self) -> None:
         api_factory = lusid_utils.api_factory
@@ -38,14 +41,15 @@ class UserDefinedProperties(unittest.TestCase):
         print(portfolio_manager_property)
         # end::create-property[]
         self.assertIsNotNone(portfolio_manager_property)
-        with open(Path(__file__).parent.joinpath("data/test_user_defined_properties/test_output/portfolio_manager_property.txt"), "w") as file:
+        with open(Path(__file__).parent.joinpath(
+                "data/test_user_defined_properties/test_output/portfolio_manager_property.txt"), "w") as file:
             file.write(portfolio_manager_property)
 
         # tag::get-property[]
         response = property_definitions_api.get_property_definition(
-                domain="Portfolio",
-                scope=scope,
-                code="portfolio_manager_name",
+            domain="Portfolio",
+            scope=scope,
+            code="portfolio_manager_name",
         )
         property_df = pd.DataFrame([{
             "Code": response.code,
@@ -57,5 +61,3 @@ class UserDefinedProperties(unittest.TestCase):
         # end::get-property[]
         self.write_to_test_output(property_df, "get_property.csv")
         self.assertEqual(response.code, "portfolio_manager_name")
-
-

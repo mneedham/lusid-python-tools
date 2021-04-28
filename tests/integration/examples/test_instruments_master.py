@@ -69,11 +69,11 @@ class InstrumentsMaster(unittest.TestCase):
 
         # tag::get-instrument[]
         response = instruments_api.get_instrument(identifier_type='Figi', identifier='BBG000C05BD1')
-        instrument_df = pd.DataFrame([
-            {"Figi": response.identifiers["Figi"],
-             "Instrument": response.name,
-             "ClientInternal": response.identifiers["ClientInternal"],
-             "LUID": response.lusid_instrument_id}
+        instrument_df = pd.DataFrame([{
+            "Figi": response.identifiers["Figi"],
+            "Instrument": response.name,
+            "ClientInternal": response.identifiers["ClientInternal"],
+            "LUID": response.lusid_instrument_id}
         ])
         # end::get-instrument[]
         self.write_to_test_output(instrument_df, "get_instrument.csv")
@@ -83,11 +83,11 @@ class InstrumentsMaster(unittest.TestCase):
         # tag::get-instrument-client-internal[]
         response = instruments_api.get_instrument(identifier_type='ClientInternal', identifier='imd_43535553')
 
-        instrument_df = pd.DataFrame([
-            {"Figi": response.identifiers["Figi"],
-             "Instrument": response.name,
-             "ClientInternal": response.identifiers["ClientInternal"],
-             "LUID": response.lusid_instrument_id}
+        instrument_df = pd.DataFrame([{
+            "Figi": response.identifiers["Figi"],
+            "Instrument": response.name,
+            "ClientInternal": response.identifiers["ClientInternal"],
+            "LUID": response.lusid_instrument_id}
         ])
         # end::get-instrument-client-internal[]
         self.write_to_test_output(instrument_df.head(10), "get_instrument_client_internal.csv")
@@ -99,11 +99,11 @@ class InstrumentsMaster(unittest.TestCase):
             identifier_type='Figi',
             request_body=['BBG000C05BD1', 'BBG000DQQNJ8'])
 
-        instruments_df = pd.DataFrame([
-            {"Figi": instrument.identifiers["Figi"],
-             "Instrument": instrument.name,
-             "ClientInternal": instrument.identifiers["ClientInternal"],
-             "LUID": instrument.lusid_instrument_id}
+        instruments_df = pd.DataFrame([{
+            "Figi": instrument.identifiers["Figi"],
+            "Instrument": instrument.name,
+            "ClientInternal": instrument.identifiers["ClientInternal"],
+            "LUID": instrument.lusid_instrument_id}
             for _, instrument in response.values.items()
         ])
         # end::get-instruments[]
@@ -152,12 +152,12 @@ class InstrumentsMaster(unittest.TestCase):
             request_body=['BBG000C05BD1', 'BBG000DQQNJ8'],
             property_keys=[asset_class_property_key])
 
-        instrument_properties_df = pd.DataFrame([
-            {"Figi": instrument.identifiers["Figi"],
-             "Instrument": instrument.name,
-             "ClientInternal": instrument.identifiers["ClientInternal"],
-             "LUID": instrument.lusid_instrument_id,
-             "Asset Class": instrument.properties[0].value.label_value}
+        instrument_properties_df = pd.DataFrame([{
+            "Figi": instrument.identifiers["Figi"],
+            "Instrument": instrument.name,
+            "ClientInternal": instrument.identifiers["ClientInternal"],
+            "LUID": instrument.lusid_instrument_id,
+            "Asset Class": instrument.properties[0].value.label_value}
             for _, instrument in response.values.items()])
         # end::get-instrument-properties[]
         self.write_to_test_output(instrument_properties_df, "get_instruments_properties.csv")
@@ -169,11 +169,11 @@ class InstrumentsMaster(unittest.TestCase):
         search_request = models.InstrumentSearchProperty(key=asset_class_property_key, value='equity')
         response = search_api.instruments_search(instrument_search_property=[search_request], mastered_only=True)
 
-        search_instruments_df = pd.DataFrame([
-            {"Figi": instrument.identifiers["Figi"].value,
-             "Instrument": instrument.name,
-             "ClientInternal": instrument.identifiers["ClientInternal"].value,
-             "LUID": instrument.identifiers['LusidInstrumentId'].value}
+        search_instruments_df = pd.DataFrame([{
+            "Figi": instrument.identifiers["Figi"].value,
+            "Instrument": instrument.name,
+            "ClientInternal": instrument.identifiers["ClientInternal"].value,
+            "LUID": instrument.identifiers['LusidInstrumentId'].value}
             for instrument in response[0].mastered_instruments])
         # end::search-instrument[]
         self.write_to_test_output(search_instruments_df, "search_instruments.csv")
@@ -196,11 +196,11 @@ class InstrumentsMaster(unittest.TestCase):
             effective_at=datetime.now(pytz.UTC).isoformat(),
             request_body=['BBG000C05BD1'])
 
-        instruments_df_now = pd.DataFrame([
-            {"Figi": instrument.identifiers["Figi"],
-             "Instrument": instrument.name,
-             "ClientInternal": instrument.identifiers["ClientInternal"],
-             "LUID": instrument.lusid_instrument_id}
+        instruments_df_now = pd.DataFrame([{
+            "Figi": instrument.identifiers["Figi"],
+            "Instrument": instrument.name,
+            "ClientInternal": instrument.identifiers["ClientInternal"],
+            "LUID": instrument.lusid_instrument_id}
             for _, instrument in response.values.items()
         ])
         # end::get-instruments-now[]
@@ -213,11 +213,11 @@ class InstrumentsMaster(unittest.TestCase):
             effective_at=(datetime.now(pytz.UTC) + timedelta(minutes=11)).isoformat(),
             request_body=['BBG000C05BD1'])
 
-        instruments_df_later = pd.DataFrame([
-            {"Figi": instrument.identifiers["Figi"],
-             "Instrument": instrument.name,
-             "ClientInternal": instrument.identifiers["ClientInternal"],
-             "LUID": instrument.lusid_instrument_id}
+        instruments_df_later = pd.DataFrame([{
+            "Figi": instrument.identifiers["Figi"],
+            "Instrument": instrument.name,
+            "ClientInternal": instrument.identifiers["ClientInternal"],
+            "LUID": instrument.lusid_instrument_id}
             for _, instrument in response.values.items()
         ])
         # end::get-instruments-later[]

@@ -55,7 +55,9 @@ class Transactions(unittest.TestCase):
         definitions = {
             instrument["instrument_desc"]: models.InstrumentDefinition(
                 name=instrument["instrument_desc"],
-                identifiers={"ClientInternal": models.InstrumentIdValue(value=instrument["client_internal"])},
+                identifiers={
+                    "ClientInternal": models.InstrumentIdValue(value=instrument["client_internal"])
+                },
             )
             for _, instrument in instruments.iterrows()
         }
