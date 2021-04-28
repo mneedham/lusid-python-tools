@@ -95,7 +95,8 @@ class Holdings(unittest.TestCase):
             return pd.DataFrame([{
                 "Instrument": value.properties["Instrument/default/Name"].value.label_value,
                 "Amount": value.cost.amount,
-                "Units": value.units
+                "Units": value.units,
+                "Type": value.holding_type
             } for value in response.values])
         # end::format-holdings[]
 
@@ -145,3 +146,15 @@ class Holdings(unittest.TestCase):
         # end::get-holdings-today[]
         self.write_to_test_output(holdings, "holdings.csv")
         self.assertEqual(holdings.shape[0], 4)
+
+        # tag::get-holdings-positions[]
+        holding_response = transaction_portfolios_api.get_holdings(
+            scope=scope,
+            code=portfolio_code,
+            filter="holdingType eq 'P'",
+            property_keys=["Instrument/default/Name"]
+        )
+        holdings = display_holdings_summary(holding_response)
+        # end::get-holdings-positions[]
+        self.write_to_test_output(holdings, "holdings_positions.csv")
+        self.assertEqual(holdings.shape[0], 3)

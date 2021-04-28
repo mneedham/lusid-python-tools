@@ -1,3 +1,3 @@
-Instrument,Amount,Units
-GBP,744000.0,744000.0
-Tesco,256000.0,100000.0
+Instrument,Amount,Units,Type
+GBP,744000.0,744000.0,B
+Tesco,256000.0,100000.0,P

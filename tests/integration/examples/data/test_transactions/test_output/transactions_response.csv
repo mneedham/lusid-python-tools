@@ -1,6 +1,6 @@
-transaction_id,type,instrument_identifiers,instrument_uid,transaction_date,settlement_date,units,transaction_price,total_consideration,transaction_currency,entry_date_time
-tx_00001,FundsIn,{'Instrument/default/Currency': 'GBP'},CCY_GBP,2020-01-01 00:00:00+00:00,2020-01-01 00:00:00+00:00,1000000.0,"{'price': 1.0, 'type': 'Price'}","{'amount': 1000000.0, 'currency': 'GBP'}",GBP,2021-04-27 11:14:04.308461+00:00
-tx_00002,Buy,{'Instrument/default/ClientInternal': 'EQ_001'},LUID_KQG14EN8,2020-01-01 00:00:00+00:00,2020-01-01 00:00:00+00:00,100000.0,"{'price': 2.56, 'type': 'Price'}","{'amount': 256000.0, 'currency': 'GBP'}",GBP,2021-04-27 11:14:05.034080+00:00
-tx_00003,Buy,{'Instrument/default/ClientInternal': 'EQ_002'},LUID_9WS4J7P0,2020-01-02 00:00:00+00:00,2020-01-02 00:00:00+00:00,120000.0,"{'price': 1.92, 'type': 'Price'}","{'amount': 230400.0, 'currency': 'GBP'}",GBP,2021-04-27 11:14:05.755489+00:00
-tx_00004,Buy,{'Instrument/default/ClientInternal': 'EQ_003'},LUID_T8VVLBPS,2020-01-02 00:00:00+00:00,2020-01-02 00:00:00+00:00,200000.0,"{'price': 2.26, 'type': 'Price'}","{'amount': 452000.0, 'currency': 'GBP'}",GBP,2021-04-27 11:14:06.279452+00:00
-tx_00005,Buy,{'Instrument/default/ClientInternal': 'EQ_001'},LUID_KQG14EN8,2020-01-03 00:00:00+00:00,2020-01-03 00:00:00+00:00,20000.0,"{'price': 2.6, 'type': 'Price'}","{'amount': 52000.0, 'currency': 'GBP'}",GBP,2021-04-27 11:14:06.753317+00:00
+Transaction ID,Instrument,Entry Date,Amount,Units
+tx_00001,GBP,2021-04-27 16:10:40.993834+00:00,1000000.0,1000000.0
+tx_00002,Tesco,2021-04-27 16:10:41.585903+00:00,256000.0,100000.0
+tx_00003,Morrisons,2021-04-27 16:10:42.218109+00:00,230400.0,120000.0
+tx_00004,Sainsbury's,2021-04-27 16:10:42.794542+00:00,452000.0,200000.0
+tx_00005,Tesco,2021-04-27 16:10:43.270124+00:00,52000.0,20000.0

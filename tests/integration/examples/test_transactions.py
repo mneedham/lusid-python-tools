@@ -35,9 +35,7 @@ class Transactions(unittest.TestCase):
                 display_name="Portfolio UK",
                 code=f"PortfolioUk-{uuid.uuid4()}",
                 created=created_date,
-                base_currency="GBP"
-            )
-        )
+                base_currency="GBP"))
         portfolio_code = portfolio.id.code
         # end::create-portfolio[]
         self.assertIsNotNone(portfolio_code)
@@ -83,19 +81,27 @@ class Transactions(unittest.TestCase):
                     units=txn["quantity"],
                     transaction_price=models.TransactionPrice(price=txn["price"], type="Price"),
                     total_consideration=models.CurrencyAndAmount(
-                        amount=txn["net_money"], currency=txn["instrument_currency"]
-                    )))
+                        amount=txn["net_money"], currency=txn["instrument_currency"])))
 
             transaction_portfolios_api.upsert_transactions(
                 scope=scope, code=portfolio_code, transaction_request=transactions_request)
         # end::import-transactions[]
 
+        # tag::format-transactions[]
+        def display_transactions_summary(response):
+            return pd.DataFrame([{
+                "Transaction ID": value.transaction_id,
+                "Instrument": value.properties["Instrument/default/Name"].value.label_value,
+                "Entry Date": value.entry_date_time,
+                "Amount": value.total_consideration.amount,
+                "Units": value.units,
+            } for value in response.values
+            ])
+        # end::format-transactions[]
+
         # tag::get-transactions[]
-        response = transaction_portfolios_api.get_transactions(scope=scope, code=portfolio_code)
-        tx_response = pd.DataFrame([
-            {k: v for k, v in value.to_dict().items()
-             if k not in ["properties", "counterparty_id", "exchange_rate", "source"]}
-            for value in response.values
-        ])
+        response = transaction_portfolios_api.get_transactions(
+            scope=scope, code=portfolio_code, property_keys=["Instrument/default/Name"],)
+        tx_response = display_transactions_summary(response)
         # end::get-transactions[]
         self.write_to_test_output(tx_response, "transactions_response.csv")
