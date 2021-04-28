@@ -22,9 +22,8 @@ class Quotes(unittest.TestCase):
         api_factory = lusid_utils.api_factory
 
         # tag::apis[]
-        instruments_api = api_factory.build(lusid.api.InstrumentsApi)
         transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
-        quotes_api = api_factory.build(lusid.api.QuotesApi)
+        instruments_api = api_factory.build(lusid.api.InstrumentsApi)
         # end::apis[]
         portfolios_api = api_factory.build(lusid.api.PortfoliosApi)
 
