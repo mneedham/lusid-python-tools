@@ -27,13 +27,13 @@ class Holdings(unittest.TestCase):
         # end::apis[]
 
         # tag::create-portfolio[]
-        scope = f"UK-Trading-{uuid.uuid4()}"
+        scope = "Developer-HoldingsTutorial"
         created_date = datetime(year=2010, month=1, day=5, tzinfo=pytz.UTC).isoformat()
         portfolio = transaction_portfolios_api.create_portfolio(
             scope=scope,
             create_transaction_portfolio_request=models.CreateTransactionPortfolioRequest(
-                display_name="Portfolio UK",
-                code=f"PortfolioUk-{uuid.uuid4()}",
+                display_name="Developer Holdings Tutorial",
+                code=f"Developer-Holdings-Tutorial-{uuid.uuid4()}",
                 created=created_date,
                 base_currency="GBP"
             )

@@ -11,6 +11,8 @@ import pandas as pd
 import uuid
 from datetime import datetime
 from dateutil.parser import parse
+
+
 # end::imports[]
 
 
@@ -28,7 +30,7 @@ class Quotes(unittest.TestCase):
         portfolios_api = api_factory.build(lusid.api.PortfoliosApi)
 
         # tag::create-portfolio[]
-        scope = f"Developer-SetHoldingsTutorial"
+        scope = "Developer-SetHoldingsTutorial"
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
         portfolio = transaction_portfolios_api.create_portfolio(
             scope=scope,
