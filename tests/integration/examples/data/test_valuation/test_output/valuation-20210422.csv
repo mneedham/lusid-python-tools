@@ -1,4 +1,4 @@
-Instrument/default/Name,Sum(Holding/default/Units),Proportion(Holding/default/PV),Sum(Holding/default/PV)
-Amazon_Nasdaq_AMZN,100.0,0.6397853100572107,330904.0
-Apple_Nasdaq_AAPL,300.0,0.07652969484407718,39582.0
-CoinBase_Nasdaq_COIN,500.0,0.28368499509871214,146725.0
+Instrument/default/Name,Sum(Holding/default/Units),Sum(Holding/default/PV),Proportion(Holding/default/PV)
+Amazon_Nasdaq_AMZN,100.0,330904.0,0.6397853100572107
+Apple_Nasdaq_AAPL,300.0,39582.0,0.07652969484407718
+CoinBase_Nasdaq_COIN,500.0,146725.0,0.28368499509871214
