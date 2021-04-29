@@ -127,8 +127,8 @@ class Valuation(unittest.TestCase):
                     metrics=[
                         models.AggregateSpec("Instrument/default/Name", "Value"),
                         models.AggregateSpec("Holding/default/Units", "Sum"),
-                        models.AggregateSpec("Holding/default/PV", "Proportion"),
                         models.AggregateSpec("Holding/default/PV", "Sum"),
+                        models.AggregateSpec("Holding/default/PV", "Proportion"),
                     ],
                     group_by=["Instrument/default/Name"],
                     valuation_schedule=models.ValuationSchedule(effective_at=date),

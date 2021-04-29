@@ -61,3 +61,10 @@ class UserDefinedProperties(unittest.TestCase):
         # end::get-property[]
         self.write_to_test_output(property_df, "get_property.csv")
         self.assertEqual(response.code, "portfolio_manager_name")
+
+        response = property_definitions_api.get_property_definition(
+            domain="Holding",
+            scope="default",
+            code="PV",
+        )
+        print(response)
