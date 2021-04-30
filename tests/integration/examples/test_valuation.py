@@ -124,13 +124,13 @@ class Valuation(unittest.TestCase):
         # end::import-quotes[]
 
         # tag::compute-valuation[]
-        def compute_valuation_with_default_recipe(scope, portfolio_code, effective_date, metrics, group_by):
+        def compute_valuation_with_default_recipe(from_date, to_date, metrics, group_by):
             return aggregation_api.get_valuation(
                 valuation_request=models.ValuationRequest(
                     recipe_id=models.ResourceId(scope=scope, code="default"),
                     metrics=[models.AggregateSpec(key, op) for key, op in metrics],
                     group_by=group_by,
-                    valuation_schedule=models.ValuationSchedule(effective_at=effective_date),
+                    valuation_schedule=models.ValuationSchedule(effective_from=from_date, effective_at=to_date),
                     portfolio_entity_ids=[models.PortfolioEntityId(
                         scope=scope,
                         code=portfolio_code,
@@ -144,15 +144,24 @@ class Valuation(unittest.TestCase):
             ("Holding/default/PV", "Sum"),
         ]
         group_by = ["Analytic/default/ValuationDate"]
-        # tag::get-valuation-all[]
+        # end::get-valuation-all[]
 
         # tag::get-valuation-total[]
         effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
-        response = compute_valuation_with_default_recipe(scope, portfolio_code, effective_at, metrics, group_by)
+        response = compute_valuation_with_default_recipe(effective_at, effective_at, metrics, group_by)
         valuation_all = pd.DataFrame(response)
         # end::get-valuation-total[]
         self.write_to_test_output(valuation_all, "valuation-all.csv")
-        self.assertAlmostEqual(valuation_all["Sum(Holding/default/PV)"][0], 532212.0, 3)
+        self.assertAlmostEqual(valuation_all["Sum(Holding/default/PV)"].values[0], 532212.0, 3)
+
+        # tag::get-valuation-total-multiple-days[]
+        date_from = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
+        date_to = datetime(year=2021, month=4, day=23, tzinfo=pytz.UTC)
+        response = compute_valuation_with_default_recipe(date_from, date_to, metrics, group_by)
+        valuation_multiple_days = pd.DataFrame(response).sort_values(["Analytic/default/ValuationDate"])
+        # end::get-valuation-total-multiple-days[]
+        self.write_to_test_output(valuation_multiple_days, "valuation-all-multiple-days.csv")
+        self.assertAlmostEqual(valuation_multiple_days["Sum(Holding/default/PV)"].values[0], 532212.0, 3)
 
         # tag::get-valuation-by-instrument[]
         metrics = [
@@ -166,7 +175,7 @@ class Valuation(unittest.TestCase):
 
         # tag::get-valuation-20210421[]
         effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
-        response = compute_valuation_with_default_recipe(scope, portfolio_code, effective_at, metrics, group_by)
+        response = compute_valuation_with_default_recipe(effective_at, effective_at, metrics, group_by)
         valuation = pd.DataFrame(response)
         # end::get-valuation-20210421[]
         self.write_to_test_output(valuation, "valuation-20210421.csv")
@@ -174,7 +183,7 @@ class Valuation(unittest.TestCase):
 
         # tag::get-valuation-20210422[]
         effective_at = datetime(year=2021, month=4, day=22, tzinfo=pytz.UTC)
-        response = compute_valuation_with_default_recipe(scope, portfolio_code, effective_at, metrics, group_by)
+        response = compute_valuation_with_default_recipe(effective_at, effective_at, metrics, group_by)
         valuation = pd.DataFrame(response)
         # end::get-valuation-20210422[]
         self.write_to_test_output(valuation, "valuation-20210422.csv")
