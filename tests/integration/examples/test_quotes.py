@@ -29,20 +29,18 @@ class Quotes(unittest.TestCase):
         portfolios_api = api_factory.build(lusid.api.PortfoliosApi)
 
         # tag::create-portfolio[]
-        scope = "Developer-QuotesTutorial"
+        now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
+        scope = portfolio_code = f"Developer-Quotes-Tutorial-{now}"
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
         portfolio = transaction_portfolios_api.create_portfolio(
             scope=scope,
             create_transaction_portfolio_request=models.CreateTransactionPortfolioRequest(
                 display_name="Developer Quotes Tutorial",
-                code=f"Developer-Quotes-Tutorial-{uuid.uuid4()}",
+                code=portfolio_code,
                 created=created_date,
-                base_currency="USD"
-            )
-        )
-        portfolio_code = portfolio.id.code
+                base_currency="USD"))
         # end::create-portfolio[]
-        self.assertIsNotNone(portfolio_code)
+        self.assertIsNotNone(portfolio.id.code)
 
         # tag::holdings-file[]
         quotes_file = "data/test_quotes/holdings.csv"

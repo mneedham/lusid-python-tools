@@ -5,11 +5,9 @@ import tests.integration.examples.lusid_utils as lusid_utils
 # tag::imports[]
 import lusid
 from lusid import models
-import uuid
 
+from datetime import datetime
 import pandas as pd
-
-
 # end::imports[]
 
 
@@ -26,7 +24,8 @@ class UserDefinedProperties(unittest.TestCase):
         # end::create-apis[]
 
         # tag::create-property[]
-        scope = f"UK-Trading-{uuid.uuid4()}"
+        now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
+        scope = portfolio_code = f"Developer-Set-Holdings-Tutorial-{now}"
         response = property_definitions_api.create_property_definition(
             create_property_definition_request=models.CreatePropertyDefinitionRequest(
                 domain="Portfolio",

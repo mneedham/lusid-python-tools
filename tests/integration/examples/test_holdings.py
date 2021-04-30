@@ -25,22 +25,21 @@ class Holdings(unittest.TestCase):
         instruments_api = api_factory.build(lusid.api.InstrumentsApi)
         transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
         # end::apis[]
+        portfolios_api = api_factory.build(lusid.api.PortfoliosApi)
 
         # tag::create-portfolio[]
-        scope = "Developer-HoldingsTutorial"
+        now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
+        scope = portfolio_code = f"Developer-Holdings-Tutorial-{now}"
         created_date = datetime(year=2010, month=1, day=5, tzinfo=pytz.UTC).isoformat()
         portfolio = transaction_portfolios_api.create_portfolio(
             scope=scope,
             create_transaction_portfolio_request=models.CreateTransactionPortfolioRequest(
                 display_name="Developer Holdings Tutorial",
-                code=f"Developer-Holdings-Tutorial-{uuid.uuid4()}",
+                code=portfolio_code,
                 created=created_date,
-                base_currency="GBP"
-            )
-        )
-        portfolio_code = portfolio.id.code
+                base_currency="GBP"))
         # end::create-portfolio[]
-        self.assertIsNotNone(portfolio_code)
+        self.assertIsNotNone(portfolio.id.code)
 
         # tag::transactions-file[]
         transactions_file = "data/test_holdings/transactions.csv"
@@ -158,3 +157,5 @@ class Holdings(unittest.TestCase):
         # end::get-holdings-positions[]
         self.write_to_test_output(holdings, "holdings_positions.csv")
         self.assertEqual(holdings.shape[0], 3)
+
+        portfolios_api.delete_portfolio(scope, portfolio_code)

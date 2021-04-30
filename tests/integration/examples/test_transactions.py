@@ -27,18 +27,18 @@ class Transactions(unittest.TestCase):
         # end::apis[]
 
         # tag::create-portfolio[]
-        scope = f"UK-Trading-{uuid.uuid4()}"
+        now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
+        scope = portfolio_code = f"Developer-Transactions-Tutorial-{now}"
         created_date = datetime(year=2010, month=1, day=5, tzinfo=pytz.UTC).isoformat()
         portfolio = transaction_portfolios_api.create_portfolio(
             scope=scope,
             create_transaction_portfolio_request=models.CreateTransactionPortfolioRequest(
-                display_name="Portfolio UK",
-                code=f"PortfolioUk-{uuid.uuid4()}",
+                display_name="Developer Transactions Tutorial",
+                code=portfolio_code,
                 created=created_date,
                 base_currency="GBP"))
-        portfolio_code = portfolio.id.code
         # end::create-portfolio[]
-        self.assertIsNotNone(portfolio_code)
+        self.assertIsNotNoneportfolio.id.code
 
         # tag::transactions-file[]
         transactions_file = "data/test_transactions/transactions.csv"

@@ -8,16 +8,17 @@ from lusid import models
 
 import pytz
 import pandas as pd
+import uuid
 from datetime import datetime
 from dateutil.parser import parse
 # end::imports[]
 
 
-class Valuation(unittest.TestCase):
+class ValuationWithFigiRecipe(unittest.TestCase):
     def write_to_test_output(self, df, file_name):
         df.to_csv(Path(__file__).parent.joinpath(f"data/test_valuation/test_output/{file_name}"), index=False)
 
-    def test_valuation(self) -> None:
+    def test_valuation_figi_recipe(self) -> None:
         api_factory = lusid_utils.api_factory
 
         # tag::apis[]
@@ -29,17 +30,18 @@ class Valuation(unittest.TestCase):
         portfolios_api = api_factory.build(lusid.api.PortfoliosApi)
 
         # tag::create-portfolio[]
-        now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
-        scope = portfolio_code = f"Developer-Valuation-Tutorial-{now}"
+        scope = f"Developer-Valuation-Tutorial-{str(uuid.uuid4())[:5]}"
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
-        transaction_portfolios_api.create_portfolio(
+        portfolio = transaction_portfolios_api.create_portfolio(
             scope=scope,
             create_transaction_portfolio_request=models.CreateTransactionPortfolioRequest(
                 display_name="Developer Valuation Tutorial",
-                code=portfolio_code,
+                code=f"Developer-Valuation-Tutorial-{str(uuid.uuid4())[:5]}",
                 created=created_date,
-                base_currency="USD"))
-        print(scope)
+                base_currency="USD"
+            )
+        )
+        portfolio_code = portfolio.id.code
         # end::create-portfolio[]
         self.assertIsNotNone(portfolio_code)
 
@@ -74,7 +76,7 @@ class Valuation(unittest.TestCase):
         holdings_adjustments = [
             models.HoldingAdjustment(
                 instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
-                instrument_uid=figi_to_luid[holding["figi"]],
+                instrument_uid=holding["figi"],
                 tax_lots=[models.TargetTaxLot(units=holding["units"])])
             for _, holding in holdings.iterrows()
         ]
@@ -102,10 +104,10 @@ class Valuation(unittest.TestCase):
                 quote_id=models.QuoteId(
                     quote_series_id=models.QuoteSeriesId(
                         provider="Lusid",
-                        instrument_id=figi_to_luid[quote["figi"]],
-                        instrument_id_type="LusidInstrumentId",
+                        instrument_id=quote["figi"],
+                        instrument_id_type="Figi",
                         quote_type="Price",
-                        field="mid",
+                        field="Mid",
                     ),
                     effective_at=pytz.UTC.localize(parse(quote['date'])).isoformat(),
                 ),
@@ -118,7 +120,7 @@ class Valuation(unittest.TestCase):
         # end::import-quotes[]
 
         # tag::compute-valuation[]
-        def compute_valuation_with_recipe(scope, portfolio_code, recipe_code, date):
+        def compute_valuation_with_default_recipe(scope, portfolio_code, recipe_code, date):
             return aggregation_api.get_valuation(
                 valuation_request=models.ValuationRequest(
                     recipe_id=models.ResourceId(scope=scope, code=recipe_code),
@@ -139,20 +141,25 @@ class Valuation(unittest.TestCase):
             ).data
         # end::compute-valuation[]
 
-        # tag::get-valuation-20210421[]
-        effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
-        response = compute_valuation_with_recipe(scope, portfolio_code, "default", effective_at)
-        valuation = pd.DataFrame(response)
-        # end::get-valuation-20210421[]
-        self.write_to_test_output(valuation, "valuation-20210421.csv")
-        self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.631707, 3)
+        recipe_api = api_factory.build(lusid.api.ConfigurationRecipeApi)
 
-        # tag::get-valuation-20210422[]
-        effective_at = datetime(year=2021, month=4, day=22, tzinfo=pytz.UTC)
-        response = compute_valuation_with_recipe(scope, portfolio_code, "default", effective_at)
+        # tag::create-recipe[]
+        response = recipe_api.upsert_configuration_recipe(
+            upsert_recipe_request=models.UpsertRecipeRequest(
+                configuration_recipe=models.ConfigurationRecipe(
+                    scope=scope,
+                    code="figi-recipe",
+                    market=models.MarketContext(
+                        options=models.MarketOptions(
+                            default_supplier="Lusid",
+                            default_instrument_code_type="Figi",
+                            default_scope=scope)))))
+        print(response)
+        # end::create-recipe[]
+
+        effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
+        response = compute_valuation_with_default_recipe(scope, portfolio_code, "figi-recipe", effective_at)
         valuation = pd.DataFrame(response)
-        # end::get-valuation-20210422[]
-        self.write_to_test_output(valuation, "valuation-20210422.csv")
-        self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.6397, 3)
+        print(valuation)
 
         portfolios_api.delete_portfolio(scope, portfolio_code)
