@@ -12,6 +12,8 @@ from datetime import datetime
 from dateutil.parser import parse
 # end::imports[]
 
+from itertools import groupby
+
 
 class Valuation(unittest.TestCase):
     def write_to_test_output(self, df, file_name):
@@ -28,9 +30,13 @@ class Valuation(unittest.TestCase):
         # end::apis[]
         portfolios_api = api_factory.build(lusid.api.PortfoliosApi)
 
-        # tag::create-portfolio[]
+        # tag::scope-portfolio-code[]
+        scope = portfolio_code = "Developer-Valuation-Tutorial"
+        # end::scope-portfolio-code[]
         now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
         scope = portfolio_code = f"Developer-Valuation-Tutorial-{now}"
+
+        # tag::create-portfolio[]
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
         transaction_portfolios_api.create_portfolio(
             scope=scope,
@@ -134,10 +140,28 @@ class Valuation(unittest.TestCase):
                         scope=scope,
                         code=portfolio_code,
                         portfolio_entity_type="SinglePortfolio"
-                    )]
-                )
-            ).data
+                    )])).data
         # end::compute-valuation[]
+
+        effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
+        response = aggregation_api.get_valuation(
+            valuation_request=models.ValuationRequest(
+                recipe_id=models.ResourceId(scope=scope, code="default"),
+                metrics=[
+                    models.AggregateSpec("Instrument/default/Name", "Value"),
+                    models.AggregateSpec("Holding/default/Units", "Sum"),
+                    models.AggregateSpec("Holding/default/PV", "Sum"),
+                    models.AggregateSpec("Holding/default/PV", "Proportion"),
+                    models.AggregateSpec('Instrument/default/LusidInstrumentId', 'Value'),
+                ],
+                group_by=["Instrument/default/Name"],
+                valuation_schedule=models.ValuationSchedule(effective_at=effective_at),
+                portfolio_entity_ids=[models.PortfolioEntityId(
+                    scope=scope,
+                    code=portfolio_code,
+                    portfolio_entity_type="SinglePortfolio"
+                )])).data
+        print(response)
 
         # tag::get-valuation-20210421[]
         effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
