@@ -124,18 +124,13 @@ class Valuation(unittest.TestCase):
         # end::import-quotes[]
 
         # tag::compute-valuation[]
-        def compute_valuation_with_recipe(scope, portfolio_code, recipe_code, date):
+        def compute_valuation_with_default_recipe(scope, portfolio_code, effective_date, metrics, group_by):
             return aggregation_api.get_valuation(
                 valuation_request=models.ValuationRequest(
-                    recipe_id=models.ResourceId(scope=scope, code=recipe_code),
-                    metrics=[
-                        models.AggregateSpec("Instrument/default/Name", "Value"),
-                        models.AggregateSpec("Holding/default/Units", "Sum"),
-                        models.AggregateSpec("Holding/default/PV", "Sum"),
-                        models.AggregateSpec("Holding/default/PV", "Proportion"),
-                    ],
-                    group_by=["Instrument/default/Name"],
-                    valuation_schedule=models.ValuationSchedule(effective_at=date),
+                    recipe_id=models.ResourceId(scope=scope, code="default"),
+                    metrics=[models.AggregateSpec(key, op) for key, op in metrics],
+                    group_by=group_by,
+                    valuation_schedule=models.ValuationSchedule(effective_at=effective_date),
                     portfolio_entity_ids=[models.PortfolioEntityId(
                         scope=scope,
                         code=portfolio_code,
@@ -143,29 +138,35 @@ class Valuation(unittest.TestCase):
                     )])).data
         # end::compute-valuation[]
 
+        # tag::get-valuation-all[]
+        metrics = [
+            ("Analytic/default/ValuationDate", "Value"),
+            ("Holding/default/PV", "Sum"),
+        ]
+        group_by = ["Analytic/default/ValuationDate"]
+        # tag::get-valuation-all[]
+
+        # tag::get-valuation-total[]
         effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
-        response = aggregation_api.get_valuation(
-            valuation_request=models.ValuationRequest(
-                recipe_id=models.ResourceId(scope=scope, code="default"),
-                metrics=[
-                    models.AggregateSpec("Instrument/default/Name", "Value"),
-                    models.AggregateSpec("Holding/default/Units", "Sum"),
-                    models.AggregateSpec("Holding/default/PV", "Sum"),
-                    models.AggregateSpec("Holding/default/PV", "Proportion"),
-                    models.AggregateSpec('Instrument/default/LusidInstrumentId', 'Value'),
-                ],
-                group_by=["Instrument/default/Name"],
-                valuation_schedule=models.ValuationSchedule(effective_at=effective_at),
-                portfolio_entity_ids=[models.PortfolioEntityId(
-                    scope=scope,
-                    code=portfolio_code,
-                    portfolio_entity_type="SinglePortfolio"
-                )])).data
-        print(response)
+        response = compute_valuation_with_default_recipe(scope, portfolio_code, effective_at, metrics, group_by)
+        valuation_all = pd.DataFrame(response)
+        # end::get-valuation-total[]
+        self.write_to_test_output(valuation_all, "valuation-all.csv")
+        self.assertAlmostEqual(valuation_all["Sum(Holding/default/PV)"][0], 532212.0, 3)
+
+        # tag::get-valuation-by-instrument[]
+        metrics = [
+            ("Instrument/default/Name", "Value"),
+            ("Holding/default/Units", "Sum"),
+            ("Holding/default/PV", "Sum"),
+            ("Holding/default/PV", "Proportion")
+        ]
+        group_by = ["Instrument/default/Name"]
+        # end::get-valuation-by-instrument[]
 
         # tag::get-valuation-20210421[]
         effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
-        response = compute_valuation_with_recipe(scope, portfolio_code, "default", effective_at)
+        response = compute_valuation_with_default_recipe(scope, portfolio_code, effective_at, metrics, group_by)
         valuation = pd.DataFrame(response)
         # end::get-valuation-20210421[]
         self.write_to_test_output(valuation, "valuation-20210421.csv")
@@ -173,7 +174,7 @@ class Valuation(unittest.TestCase):
 
         # tag::get-valuation-20210422[]
         effective_at = datetime(year=2021, month=4, day=22, tzinfo=pytz.UTC)
-        response = compute_valuation_with_recipe(scope, portfolio_code, "default", effective_at)
+        response = compute_valuation_with_default_recipe(scope, portfolio_code, effective_at, metrics, group_by)
         valuation = pd.DataFrame(response)
         # end::get-valuation-20210422[]
         self.write_to_test_output(valuation, "valuation-20210422.csv")
