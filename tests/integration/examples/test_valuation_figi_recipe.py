@@ -16,7 +16,7 @@ from dateutil.parser import parse
 
 class ValuationWithFigiRecipe(unittest.TestCase):
     def write_to_test_output(self, df, file_name):
-        df.to_csv(Path(__file__).parent.joinpath(f"data/test_valuation/test_output/{file_name}"), index=False)
+        df.to_csv(Path(__file__).parent.joinpath(f"data/test_valuation_figi/test_output/{file_name}"), index=False)
 
     def test_valuation_figi_recipe(self) -> None:
         api_factory = lusid_utils.api_factory
@@ -29,21 +29,23 @@ class ValuationWithFigiRecipe(unittest.TestCase):
         # end::apis[]
         portfolios_api = api_factory.build(lusid.api.PortfoliosApi)
 
+        # tag::scope-portfolio-code[]
+        scope = portfolio_code = "Developer-Valuation-Tutorial"
+        # end::scope-portfolio-code[]
+        now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
+        scope = portfolio_code = f"Developer-Valuation-Tutorial-{now}"
+
         # tag::create-portfolio[]
-        scope = f"Developer-Valuation-Tutorial-{str(uuid.uuid4())[:5]}"
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
         portfolio = transaction_portfolios_api.create_portfolio(
             scope=scope,
             create_transaction_portfolio_request=models.CreateTransactionPortfolioRequest(
                 display_name="Developer Valuation Tutorial",
-                code=f"Developer-Valuation-Tutorial-{str(uuid.uuid4())[:5]}",
+                code=portfolio_code,
                 created=created_date,
-                base_currency="USD"
-            )
-        )
-        portfolio_code = portfolio.id.code
+                base_currency="USD"))
         # end::create-portfolio[]
-        self.assertIsNotNone(portfolio_code)
+        self.assertIsNotNone(portfolio.id.code)
 
         # tag::holdings-file[]
         quotes_file = "data/test_valuation/holdings.csv"
@@ -56,7 +58,7 @@ class ValuationWithFigiRecipe(unittest.TestCase):
         self.write_to_test_output(holdings, "holdings.csv")
 
         # tag::import-instruments[]
-        response = instruments_api.upsert_instruments(request_body={
+        instruments_api.upsert_instruments(request_body={
             holding["figi"]: models.InstrumentDefinition(
                 name=holding["instrument_name"],
                 identifiers={
@@ -66,10 +68,6 @@ class ValuationWithFigiRecipe(unittest.TestCase):
             for _, holding in holdings.iterrows()
         })
 
-        figi_to_luid = {
-            instrument.identifiers["Figi"]: instrument.lusid_instrument_id
-            for _, instrument in response.values.items()
-        }
         # end::import-instruments[]
 
         # tag::set-holdings[]
@@ -107,7 +105,7 @@ class ValuationWithFigiRecipe(unittest.TestCase):
                         instrument_id=quote["figi"],
                         instrument_id_type="Figi",
                         quote_type="Price",
-                        field="Mid",
+                        field="mid",
                     ),
                     effective_at=pytz.UTC.localize(parse(quote['date'])).isoformat(),
                 ),
@@ -119,32 +117,10 @@ class ValuationWithFigiRecipe(unittest.TestCase):
         quotes_api.upsert_quotes(scope=scope, request_body=quotes_request)
         # end::import-quotes[]
 
-        # tag::compute-valuation[]
-        def compute_valuation_with_default_recipe(scope, portfolio_code, recipe_code, date):
-            return aggregation_api.get_valuation(
-                valuation_request=models.ValuationRequest(
-                    recipe_id=models.ResourceId(scope=scope, code=recipe_code),
-                    metrics=[
-                        models.AggregateSpec("Instrument/default/Name", "Value"),
-                        models.AggregateSpec("Holding/default/Units", "Sum"),
-                        models.AggregateSpec("Holding/default/PV", "Sum"),
-                        models.AggregateSpec("Holding/default/PV", "Proportion"),
-                    ],
-                    group_by=["Instrument/default/Name"],
-                    valuation_schedule=models.ValuationSchedule(effective_at=date),
-                    portfolio_entity_ids=[models.PortfolioEntityId(
-                        scope=scope,
-                        code=portfolio_code,
-                        portfolio_entity_type="SinglePortfolio"
-                    )]
-                )
-            ).data
-        # end::compute-valuation[]
-
-        recipe_api = api_factory.build(lusid.api.ConfigurationRecipeApi)
 
         # tag::create-recipe[]
-        response = recipe_api.upsert_configuration_recipe(
+        recipe_api = api_factory.build(lusid.api.ConfigurationRecipeApi)
+        recipe_api.upsert_configuration_recipe(
             upsert_recipe_request=models.UpsertRecipeRequest(
                 configuration_recipe=models.ConfigurationRecipe(
                     scope=scope,
@@ -154,12 +130,74 @@ class ValuationWithFigiRecipe(unittest.TestCase):
                             default_supplier="Lusid",
                             default_instrument_code_type="Figi",
                             default_scope=scope)))))
-        print(response)
         # end::create-recipe[]
 
+        # tag::compute-valuation[]
+        def compute_valuation_with_default_recipe(from_date, to_date, metrics, group_by):
+            return aggregation_api.get_valuation(
+                valuation_request=models.ValuationRequest(
+                    recipe_id=models.ResourceId(scope=scope, code="figi-recipe"),
+                    metrics=[models.AggregateSpec(key, op) for key, op in metrics],
+                    group_by=group_by,
+                    valuation_schedule=models.ValuationSchedule(effective_from=from_date, effective_at=to_date),
+                    portfolio_entity_ids=[models.PortfolioEntityId(
+                        scope=scope,
+                        code=portfolio_code,
+                        portfolio_entity_type="SinglePortfolio"
+                    )])).data
+
+        # end::compute-valuation[]
+
+        # tag::get-valuation-all[]
+        metrics = [
+            ("Analytic/default/ValuationDate", "Value"),
+            ("Holding/default/PV", "Sum"),
+        ]
+        group_by = ["Analytic/default/ValuationDate"]
+        # end::get-valuation-all[]
+
+        # tag::get-valuation-total[]
         effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
-        response = compute_valuation_with_default_recipe(scope, portfolio_code, "figi-recipe", effective_at)
+        response = compute_valuation_with_default_recipe(effective_at, effective_at, metrics, group_by)
+        valuation_all = pd.DataFrame(response)
+        # end::get-valuation-total[]
+        self.write_to_test_output(valuation_all, "valuation-all.csv")
+        self.assertAlmostEqual(valuation_all["Sum(Holding/default/PV)"].values[0], 532212.0, 3)
+
+        # tag::get-valuation-total-multiple-days[]
+        date_from = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
+        date_to = datetime(year=2021, month=4, day=23, tzinfo=pytz.UTC)
+        response = compute_valuation_with_default_recipe(date_from, date_to, metrics, group_by)
+        valuation_multiple_days = pd.DataFrame(response).sort_values(["Analytic/default/ValuationDate"])
+        # end::get-valuation-total-multiple-days[]
+        self.write_to_test_output(valuation_multiple_days, "valuation-all-multiple-days.csv")
+        self.assertAlmostEqual(valuation_multiple_days["Sum(Holding/default/PV)"].values[0], 532212.0, 3)
+
+        # tag::get-valuation-by-instrument[]
+        metrics = [
+            ("Instrument/default/Name", "Value"),
+            ("Holding/default/Units", "Sum"),
+            ("Holding/default/PV", "Sum"),
+            ("Holding/default/PV", "Proportion")
+        ]
+        group_by = ["Instrument/default/Name"]
+        # end::get-valuation-by-instrument[]
+
+        # tag::get-valuation-20210421[]
+        effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
+        response = compute_valuation_with_default_recipe(effective_at, effective_at, metrics, group_by)
         valuation = pd.DataFrame(response)
-        print(valuation)
+        # end::get-valuation-20210421[]
+        self.write_to_test_output(valuation, "valuation-20210421.csv")
+        self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.631707, 3)
+
+        # tag::get-valuation-20210422[]
+        effective_at = datetime(year=2021, month=4, day=22, tzinfo=pytz.UTC)
+        response = compute_valuation_with_default_recipe(effective_at, effective_at, metrics, group_by)
+        valuation = pd.DataFrame(response)
+        # end::get-valuation-20210422[]
+        self.write_to_test_output(valuation, "valuation-20210422.csv")
+        self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.6397, 3)
 
         portfolios_api.delete_portfolio(scope, portfolio_code)
+
