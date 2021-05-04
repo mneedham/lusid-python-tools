@@ -1,0 +1,6 @@
+instrument_name,client_internal,currency,figi,asset_class
+Amazon_Nasdaq_AMZN,21536181,USD,BBG000BVPXP1,equity
+Apple_Nasdaq_AAPL,4ce0ee48,USD,BBG000B9XVV8,equity
+CoinBase_Nasdaq_COIN,8f2b308d,USD,BBG00ZGF7HS6,equity
+USTreasury_2.00_2021,d222b511,USD,BBG00FN3B5K8,govt
+USTreasury_6.875_2025,724df01f,USD,BBG000DQQNJ8,govt
