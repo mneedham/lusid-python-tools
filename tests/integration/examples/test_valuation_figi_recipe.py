@@ -34,6 +34,7 @@ class ValuationWithFigiRecipe(unittest.TestCase):
         # end::scope-portfolio-code[]
         now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
         scope = portfolio_code = f"Developer-Valuation-Tutorial-{now}"
+        print(scope, portfolio_code)
 
         # tag::create-portfolio[]
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
@@ -126,6 +127,13 @@ class ValuationWithFigiRecipe(unittest.TestCase):
                     scope=scope,
                     code="figi-recipe",
                     market=models.MarketContext(
+                        market_rules=[lusid.models.MarketDataKeyRule(
+                            key="Equity.Figi.*",
+                            supplier="Lusid",
+                            data_scope=scope,
+                            quote_type="Price",
+                            field="bid"
+                        )],
                         options=models.MarketOptions(
                             default_supplier="Lusid",
                             default_instrument_code_type="Figi",
@@ -199,5 +207,6 @@ class ValuationWithFigiRecipe(unittest.TestCase):
         self.write_to_test_output(valuation, "valuation-20210422.csv")
         self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.6397, 3)
 
-        portfolios_api.delete_portfolio(scope, portfolio_code)
+        # portfolios_api.delete_portfolio(scope, portfolio_code)
+        print(scope, portfolio_code)
 

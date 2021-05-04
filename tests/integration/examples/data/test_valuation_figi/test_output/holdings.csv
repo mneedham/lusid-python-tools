@@ -1,0 +1,4 @@
+instrument_name,currency,figi,units
+Amazon_Nasdaq_AMZN,USD,BBG000BVPXP1,100
+Apple_Nasdaq_AAPL,USD,BBG000B9XVV8,300
+CoinBase_Nasdaq_COIN,USD,BBG00ZGF7HS6,500
