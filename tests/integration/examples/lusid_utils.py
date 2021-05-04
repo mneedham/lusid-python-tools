@@ -1,5 +1,15 @@
 from pathlib import Path
+
+# tag::imports[]
 import lusid
+# end::imports[]
+
+try:
+    # tag::api-factory-env-variables[]
+    api_factory = lusid.utilities.ApiClientFactory()
+    # end::api-factory-env-variables[]
+except ValueError as ex:
+    pass
 
 # tag::secrets-file[]
 secrets_file = "/path/to/secrets.json"
