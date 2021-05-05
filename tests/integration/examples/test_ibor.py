@@ -406,8 +406,8 @@ class IBOR(unittest.TestCase):
                     total_consideration=lusid.models.CurrencyAndAmount(
                         amount=txn["net_money"], currency=txn["currency"])))
 
-            transaction_portfolios_api.upsert_transactions(
-                scope=scope, code=portfolio_code, transaction_request=transactions_request)
+        transaction_portfolios_api.upsert_transactions(
+            scope=scope, code=portfolio_code, transaction_request=transactions_request)
         # end::import-transactions[]
 
         # tag::format-transactions[]
