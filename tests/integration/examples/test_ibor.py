@@ -3,17 +3,23 @@ import uuid
 from pathlib import Path
 import tests.integration.examples.lusid_utils as lusid_utils
 
-# tag::imports[]
+# tag::imports-lusid[]
 import lusid
-from lusid import models
+# end::imports-lusid[]
 
-import pytz
+# tag::imports-pandas[]
 import pandas as pd
+# end::imports-pandas[]
+
+# tag::imports-dates[]
+import pytz
 from datetime import datetime, timedelta
 from dateutil.parser import parse
-# end::imports[]
+# end::imports-dates[]
 
-from itertools import groupby
+# tag::imports[]
+
+# end::imports[]
 
 
 class IBOR(unittest.TestCase):
@@ -24,11 +30,22 @@ class IBOR(unittest.TestCase):
         api_factory = lusid_utils.api_factory
 
         # tag::apis[]
-        instruments_api = api_factory.build(lusid.api.InstrumentsApi)
         quotes_api = api_factory.build(lusid.api.QuotesApi)
         aggregation_api = api_factory.build(lusid.api.AggregationApi)
         # end::apis[]
         portfolios_api = api_factory.build(lusid.api.PortfoliosApi)
+
+        # tag::instruments-api[]
+        instruments_api = api_factory.build(lusid.api.InstrumentsApi)
+        # end::instruments-api[]
+
+        # tag::property-api[]
+        property_definitions_api = api_factory.build(lusid.api.PropertyDefinitionsApi)
+        # end::property-api[]
+
+        ##################
+        # INSTRUMENTS MASTER
+        ##################
 
         # tag::instruments-file[]
         instruments_file = "data/test_ibor/instruments.csv"
@@ -39,10 +56,6 @@ class IBOR(unittest.TestCase):
         instruments = pd.read_csv(instruments_file)
         # end::load-instruments[]
         self.write_to_test_output(instruments, "instruments.csv")
-
-        # tag::instruments-api[]
-        instruments_api = api_factory.build(lusid.api.InstrumentsApi)
-        # end::instruments-api[]
 
         # tag::identifiers[]
         response = instruments_api.get_instrument_identifier_types()
@@ -59,10 +72,10 @@ class IBOR(unittest.TestCase):
         definitions = {}
         for _, instrument in instruments.iterrows():
             identifiers = {
-                identifier[1]: models.InstrumentIdValue(value=instrument[identifier[0]])
+                identifier[1]: lusid.models.InstrumentIdValue(value=instrument[identifier[0]])
                 for identifier in identifier_columns
             }
-            definitions[instrument['instrument_name']] = models.InstrumentDefinition(
+            definitions[instrument['instrument_name']] = lusid.models.InstrumentDefinition(
                 name=instrument['instrument_name'], identifiers=identifiers)
 
         response = instruments_api.upsert_instruments(request_body=definitions)
@@ -127,17 +140,15 @@ class IBOR(unittest.TestCase):
         self.assertCountEqual(instruments_df["Instrument"].values, ["Amazon_Nasdaq_AMZN", "CoinBase_Nasdaq_COIN"])
 
         # tag::create-property[]
-        property_definitions_api = api_factory.build(lusid.api.PropertyDefinitionsApi)
-
         properties_scope = f"custom_properties_{uuid.uuid4()}"
-        property_request = models.CreatePropertyDefinitionRequest(
+        property_request = lusid.models.CreatePropertyDefinitionRequest(
             domain='Instrument',
             scope=properties_scope,
             code='asset_class',
             value_required=True,
             display_name='asset_class',
             life_time='TimeVariant',
-            data_type_id=models.ResourceId(scope='system', code='string'))
+            data_type_id=lusid.models.ResourceId(scope='system', code='string'))
 
         response = property_definitions_api.create_property_definition(
             create_property_definition_request=property_request)
@@ -149,11 +160,11 @@ class IBOR(unittest.TestCase):
         requests = []
         for row in instruments.iterrows():
             instrument = row[1]
-            asset_class_property = models.ModelProperty(
+            asset_class_property = lusid.models.ModelProperty(
                 key=asset_class_property_key,
-                value=models.PropertyValue(label_value=instrument['asset_class'])
+                value=lusid.models.PropertyValue(label_value=instrument['asset_class'])
             )
-            requests.append(models.UpsertInstrumentPropertyRequest(
+            requests.append(lusid.models.UpsertInstrumentPropertyRequest(
                 identifier_type='Figi',
                 identifier=instrument['figi'],
                 properties=[asset_class_property]))
@@ -181,7 +192,7 @@ class IBOR(unittest.TestCase):
         # tag::search-instrument[]
         search_api = api_factory.build(lusid.api.SearchApi)
 
-        search_request = models.InstrumentSearchProperty(key=asset_class_property_key, value='equity')
+        search_request = lusid.models.InstrumentSearchProperty(key=asset_class_property_key, value='equity')
         response = search_api.instruments_search(instrument_search_property=[search_request], mastered_only=True)
 
         search_instruments_df = pd.DataFrame([{
@@ -198,7 +209,7 @@ class IBOR(unittest.TestCase):
         instruments_api.update_instrument_identifier(
             identifier_type='Figi',
             identifier='BBG000BVPXP1',
-            update_instrument_identifier_request=(models.UpdateInstrumentIdentifierRequest(
+            update_instrument_identifier_request=(lusid.models.UpdateInstrumentIdentifierRequest(
                 type='ClientInternal', value='5deae335',
                 effective_at=(datetime.now(pytz.UTC) + timedelta(minutes=10)).isoformat()
             )))
@@ -247,6 +258,10 @@ class IBOR(unittest.TestCase):
         )
         # end::delete-instrument-properties[]
 
+        ##################
+        # CREATE PORTFOLIO
+        ##################
+
         # tag::scope-portfolio-code[]
         scope = portfolio_code = "Developer-IBOR-Tutorial"
         # end::scope-portfolio-code[]
@@ -261,13 +276,103 @@ class IBOR(unittest.TestCase):
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
         transaction_portfolios_api.create_portfolio(
             scope=scope,
-            create_transaction_portfolio_request=models.CreateTransactionPortfolioRequest(
+            create_transaction_portfolio_request=lusid.models.CreateTransactionPortfolioRequest(
                 display_name="Developer IBOR Tutorial",
                 code=portfolio_code,
                 created=created_date,
                 base_currency="USD"))
         # end::create-portfolio[]
         self.assertIsNotNone(portfolio_code)
+
+        # tag::create-portfolio-property[]
+        response = property_definitions_api.create_property_definition(
+            create_property_definition_request=lusid.models.CreatePropertyDefinitionRequest(
+                domain="Portfolio",
+                scope=scope,
+                code="portfolio_manager_name",
+                value_required=False,
+                display_name="portfolio_manager_name",
+                data_type_id=lusid.models.ResourceId(scope="system", code="string")
+            )
+        )
+        portfolio_manager_property = response.key
+        # end::create-portfolio-property[]
+        self.assertIsNotNone(portfolio_manager_property)
+
+        # tag::update-portfolio[]
+        portfolios_api.upsert_portfolio_properties(
+            scope=scope,
+            code=portfolio_code,
+            request_body={
+                portfolio_manager_property: lusid.models.ModelProperty(
+                    key=portfolio_manager_property,
+                    value=lusid.models.PropertyValue(label_value="Matt Smith")
+                )
+            }
+        )
+        # end::update-portfolio[]
+
+        # tag::get-portfolio[]
+        portfolio = portfolios_api.get_portfolio(
+            scope=scope,
+            code=portfolio_code,
+            property_keys=[portfolio_manager_property]
+        )
+        portfolio_df = pd.DataFrame([{
+            "Code": portfolio.id.code,
+            "Name": portfolio.display_name,
+            "Description": portfolio.description,
+            "Base Currency": portfolio.base_currency,
+            "Manager Name": portfolio.properties[portfolio_manager_property].value.label_value
+        }])
+        # end::get-portfolio[]
+        self.write_to_test_output(portfolio_df, "get_portfolio.csv")
+        self.assertEqual(portfolio.properties[portfolio_manager_property].value.label_value, "Matt Smith")
+
+        # tag::create-portfolio-with-manager[]
+        # tag::scope-portfolio-code[]
+        portfolio_code = "Developer-IBOR-With-Manager-Tutorial"
+        # end::scope-portfolio-code[]
+        portfolio_code = f"Developer-IBOR-With-Manager-Tutorial-{now}"
+
+        transaction_portfolios_api.create_portfolio(
+            scope=scope,
+            create_transaction_portfolio_request=lusid.models.CreateTransactionPortfolioRequest(
+                display_name="Developer IBOR With Manager Tutorial",
+                code=portfolio_code,
+                created=created_date,
+                base_currency="USD",
+                properties={
+                    portfolio_manager_property: lusid.models.ModelProperty(
+                        key=portfolio_manager_property,
+                        value=lusid.models.PropertyValue(label_value="David Jones"))
+                }
+            )
+        )
+        # end::create-portfolio-with-manager[]
+
+        # tag::get-updated-portfolio[]
+        portfolio = portfolios_api.get_portfolio(
+            scope=scope,
+            code=portfolio_code,
+            property_keys=[portfolio_manager_property]
+        )
+        portfolio_df = pd.DataFrame([{
+            "Code": portfolio.id.code,
+            "Name": portfolio.display_name,
+            "Description": portfolio.description,
+            "Base Currency": portfolio.base_currency,
+            "Manager Name": portfolio.properties[portfolio_manager_property].value.label_value,
+        }])
+        # end::get-updated-portfolio[]
+        self.write_to_test_output(portfolio_df, "get_new_portfolio.csv")
+        self.assertEqual(portfolio.properties[portfolio_manager_property].value.label_value, "David Jones")
+
+
+
+        ##################
+        # HOLDINGS
+        ##################
 
         # tag::holdings-file[]
         quotes_file = "data/test_ibor/holdings.csv"
@@ -279,12 +384,32 @@ class IBOR(unittest.TestCase):
         # end::load-holdings[]
         self.write_to_test_output(holdings, "holdings.csv")
 
-        # tag::set-holdings[]
+        # tag::set-holdings-api[]
+        transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
+        # end::set-holdings-api[]
+
+        # tag::adjust-holdings[]
         holdings_adjustments = [
-            models.HoldingAdjustment(
+            lusid.models.HoldingAdjustment(
                 instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
                 instrument_uid=figi_to_luid[holding["figi"]],
-                tax_lots=[models.TargetTaxLot(units=holding["units"])])
+                tax_lots=[lusid.models.TargetTaxLot(units=holding["units"])])
+            for _, holding in holdings.iterrows()
+        ]
+        transaction_portfolios_api.adjust_holdings(
+            scope=scope,
+            code=portfolio_code,
+            effective_at=datetime(2020, 1, 1, tzinfo=pytz.UTC),
+            adjust_holding_request=holdings_adjustments
+        )
+        # end::adjust-holdings[]
+
+        # tag::set-holdings[]
+        holdings_adjustments = [
+            lusid.models.HoldingAdjustment(
+                instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
+                instrument_uid=figi_to_luid[holding["figi"]],
+                tax_lots=[lusid.models.TargetTaxLot(units=holding["units"])])
             for _, holding in holdings.iterrows()
         ]
         transaction_portfolios_api.set_holdings(
@@ -307,9 +432,9 @@ class IBOR(unittest.TestCase):
 
         # tag::import-quotes[]
         quotes_request = {
-            f"quote_request_{quote['instrument_name']}_{quote['date']}": models.UpsertQuoteRequest(
-                quote_id=models.QuoteId(
-                    quote_series_id=models.QuoteSeriesId(
+            f"quote_request_{quote['instrument_name']}_{quote['date']}": lusid.models.UpsertQuoteRequest(
+                quote_id=lusid.models.QuoteId(
+                    quote_series_id=lusid.models.QuoteSeriesId(
                         provider="Lusid",
                         instrument_id=figi_to_luid[quote["figi"]],
                         instrument_id_type="LusidInstrumentId",
@@ -318,7 +443,7 @@ class IBOR(unittest.TestCase):
                     ),
                     effective_at=pytz.UTC.localize(parse(quote['date'])).isoformat(),
                 ),
-                metric_value=models.MetricValue(value=quote['price'], unit="USD"),
+                metric_value=lusid.models.MetricValue(value=quote['price'], unit="USD"),
             )
             for _, quote in quotes.iterrows()
         }
@@ -330,12 +455,12 @@ class IBOR(unittest.TestCase):
         # tag::compute-valuation[]
         def compute_valuation_with_default_recipe(from_date, to_date, metrics, group_by):
             return aggregation_api.get_valuation(
-                valuation_request=models.ValuationRequest(
-                    recipe_id=models.ResourceId(scope=scope, code="default"),
-                    metrics=[models.AggregateSpec(key, op) for key, op in metrics],
+                valuation_request=lusid.models.ValuationRequest(
+                    recipe_id=lusid.models.ResourceId(scope=scope, code="default"),
+                    metrics=[lusid.models.AggregateSpec(key, op) for key, op in metrics],
                     group_by=group_by,
-                    valuation_schedule=models.ValuationSchedule(effective_from=from_date, effective_at=to_date),
-                    portfolio_entity_ids=[models.PortfolioEntityId(
+                    valuation_schedule=lusid.models.ValuationSchedule(effective_from=from_date, effective_at=to_date),
+                    portfolio_entity_ids=[lusid.models.PortfolioEntityId(
                         scope=scope,
                         code=portfolio_code,
                         portfolio_entity_type="SinglePortfolio"
