@@ -96,7 +96,7 @@ class IBOR(unittest.TestCase):
         self.assertEqual(luids.shape[0], 5)
 
         # tag::get-instrument[]
-        response = instruments_api.get_instrument(identifier_type='Figi', identifier='BBG000BVPXP1')
+        response = instruments_api.get_instrument(identifier_type='Figi', identifier='BBG000B9XVV8')
         instrument_df = pd.DataFrame([{
             "Figi": response.identifiers["Figi"],
             "Instrument": response.name,
@@ -106,10 +106,10 @@ class IBOR(unittest.TestCase):
         # end::get-instrument[]
         self.write_to_test_output(instrument_df, "get_instrument.csv")
         self.assertEqual(instrument_df.shape[0], 1)
-        self.assertEqual(instrument_df["Instrument"].values[0], "Amazon_Nasdaq_AMZN")
+        self.assertEqual(instrument_df["Instrument"].values[0], "Apple_Nasdaq_AAPL")
 
         # tag::get-instrument-client-internal[]
-        response = instruments_api.get_instrument(identifier_type='ClientInternal', identifier='21536181')
+        response = instruments_api.get_instrument(identifier_type='ClientInternal', identifier='4ce0ee48')
 
         instrument_df = pd.DataFrame([{
             "Figi": response.identifiers["Figi"],
@@ -120,7 +120,7 @@ class IBOR(unittest.TestCase):
         # end::get-instrument-client-internal[]
         self.write_to_test_output(instrument_df.head(10), "get_instrument_client_internal.csv")
         self.assertEqual(instrument_df.shape[0], 1)
-        self.assertEqual(instrument_df["Instrument"].values[0], "Amazon_Nasdaq_AMZN")
+        self.assertEqual(instrument_df["Instrument"].values[0], "Apple_Nasdaq_AAPL")
 
         # tag::get-instruments[]
         response = instruments_api.get_instruments(
@@ -211,14 +211,14 @@ class IBOR(unittest.TestCase):
             identifier='BBG000BVPXP1',
             update_instrument_identifier_request=(lusid.models.UpdateInstrumentIdentifierRequest(
                 type='ClientInternal', value='5deae335',
-                effective_at=(datetime.now(pytz.UTC) + timedelta(minutes=10)).isoformat()
+                effective_at=pytz.UTC.localize(parse("2021-05-06")).isoformat()
             )))
         # end::update-instrument-identifier[]
 
         # tag::get-instruments-now[]
         response = instruments_api.get_instruments(
             identifier_type='Figi',
-            effective_at=datetime.now(pytz.UTC).isoformat(),
+            effective_at=pytz.UTC.localize(parse("2021-05-05")).isoformat(),
             request_body=['BBG000BVPXP1'])
 
         instruments_df_now = pd.DataFrame([{
@@ -235,7 +235,7 @@ class IBOR(unittest.TestCase):
         # tag::get-instruments-later[]
         response = instruments_api.get_instruments(
             identifier_type='Figi',
-            effective_at=(datetime.now(pytz.UTC) + timedelta(minutes=11)).isoformat(),
+            effective_at=pytz.UTC.localize(parse("2021-05-06")).isoformat(),
             request_body=['BBG000BVPXP1'])
 
         instruments_df_later = pd.DataFrame([{
@@ -370,7 +370,63 @@ class IBOR(unittest.TestCase):
         self.write_to_test_output(portfolio_df, "get_new_portfolio.csv")
         self.assertEqual(portfolio.properties[portfolio_manager_property].value.label_value, "David Jones")
 
+        ##################
+        # TRANSACTIONS
+        ##################
 
+        # tag::transactions-file[]
+        transactions_file = "data/test_ibor/transactions.csv"
+        # end::transactions-file[]
+        transactions_file = Path(__file__).parent.joinpath(transactions_file)
+
+        # tag::load-transactions[]
+        transactions = pd.read_csv(transactions_file)
+        # end::load-transactions[]
+        self.write_to_test_output(transactions, "transactions.csv")
+
+        # tag::import-transactions[]
+        transactions_request = []
+        for row, txn in transactions.iterrows():
+            if txn["figi"] == "cash":
+                instrument_identifier = {"Instrument/default/Currency": txn["instrument_currency"]}
+            else:
+                instrument_identifier = {"Instrument/default/Figi": txn["figi"]}
+
+            transactions_request.append(
+                lusid.models.TransactionRequest(
+                    transaction_id=txn["txn_id"],
+                    type=txn["transaction_type"],
+                    instrument_identifiers=instrument_identifier,
+                    transaction_date=pytz.UTC.localize(parse(txn["trade_date"])).isoformat(),
+                    settlement_date=pytz.UTC.localize(parse(txn["trade_date"])).isoformat(),
+                    units=txn["quantity"],
+                    transaction_price=lusid.models.TransactionPrice(price=txn["price"], type="Price"),
+                    total_consideration=lusid.models.CurrencyAndAmount(
+                        amount=txn["net_money"], currency=txn["instrument_currency"])))
+
+            transaction_portfolios_api.upsert_transactions(
+                scope=scope, code=portfolio_code, transaction_request=transactions_request)
+        # end::import-transactions[]
+
+        # tag::format-transactions[]
+        def display_transactions_summary(response):
+            return pd.DataFrame([{
+                "Transaction ID": value.transaction_id,
+                "Instrument": value.properties["Instrument/default/Name"].value.label_value,
+                "Entry Date": value.entry_date_time,
+                "Amount": value.total_consideration.amount,
+                "Units": value.units,
+            } for value in response.values
+            ])
+
+        # end::format-transactions[]
+
+        # tag::get-transactions[]
+        response = transaction_portfolios_api.get_transactions(
+            scope=scope, code=portfolio_code, property_keys=["Instrument/default/Name"], )
+        tx_response = display_transactions_summary(response)
+        # end::get-transactions[]
+        self.write_to_test_output(tx_response, "transactions_response.csv")
 
         ##################
         # HOLDINGS

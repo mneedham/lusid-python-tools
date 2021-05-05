@@ -38,7 +38,7 @@ class Transactions(unittest.TestCase):
                 created=created_date,
                 base_currency="GBP"))
         # end::create-portfolio[]
-        self.assertIsNotNoneportfolio.id.code
+        self.assertIsNotNone(portfolio.id.code)
 
         # tag::transactions-file[]
         transactions_file = "data/test_transactions/transactions.csv"
