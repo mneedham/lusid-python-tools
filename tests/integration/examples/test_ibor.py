@@ -418,8 +418,7 @@ class IBOR(unittest.TestCase):
                 "Entry Date": value.entry_date_time,
                 "Amount": value.total_consideration.amount,
                 "Units": value.units,
-            } for value in response.values
-            ])
+            } for value in response.values])
 
         # end::format-transactions[]
 
