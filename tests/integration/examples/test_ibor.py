@@ -265,6 +265,7 @@ class IBOR(unittest.TestCase):
         # tag::scope-portfolio-code[]
         scope = portfolio_code = "Developer-IBOR-Tutorial"
         # end::scope-portfolio-code[]
+        initial_portfolio_code = portfolio_code
         now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
         scope = portfolio_code = f"Developer-IBOR-Tutorial-{now}"
 
@@ -321,11 +322,11 @@ class IBOR(unittest.TestCase):
         portfolio_df = pd.DataFrame([{
             "Code": portfolio.id.code,
             "Name": portfolio.display_name,
-            "Description": portfolio.description,
             "Base Currency": portfolio.base_currency,
             "Manager Name": portfolio.properties[portfolio_manager_property].value.label_value
         }])
         # end::get-portfolio[]
+        portfolio_df.loc[:, "Code"] = initial_portfolio_code
         self.write_to_test_output(portfolio_df, "get_portfolio.csv")
         self.assertEqual(portfolio.properties[portfolio_manager_property].value.label_value, "Matt Smith")
 
@@ -333,6 +334,7 @@ class IBOR(unittest.TestCase):
         # tag::scope-portfolio-code[]
         portfolio_code = "Developer-IBOR-With-Manager-Tutorial"
         # end::scope-portfolio-code[]
+        initial_portfolio_code = portfolio_code
         portfolio_code = f"Developer-IBOR-With-Manager-Tutorial-{now}"
 
         transaction_portfolios_api.create_portfolio(
@@ -360,11 +362,11 @@ class IBOR(unittest.TestCase):
         portfolio_df = pd.DataFrame([{
             "Code": portfolio.id.code,
             "Name": portfolio.display_name,
-            "Description": portfolio.description,
             "Base Currency": portfolio.base_currency,
             "Manager Name": portfolio.properties[portfolio_manager_property].value.label_value,
         }])
         # end::get-updated-portfolio[]
+        portfolio_df.loc[:, "Code"] = initial_portfolio_code
         self.write_to_test_output(portfolio_df, "get_new_portfolio.csv")
         self.assertEqual(portfolio.properties[portfolio_manager_property].value.label_value, "David Jones")
 
