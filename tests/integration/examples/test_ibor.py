@@ -30,9 +30,13 @@ class IBOR(unittest.TestCase):
         api_factory = lusid_utils.api_factory
 
         # tag::apis[]
-        quotes_api = api_factory.build(lusid.api.QuotesApi)
         aggregation_api = api_factory.build(lusid.api.AggregationApi)
         # end::apis[]
+
+        # tag::quotes-api[]
+        quotes_api = api_factory.build(lusid.api.QuotesApi)
+        # end::quotes-api[]
+
         portfolios_api = api_factory.build(lusid.api.PortfoliosApi)
 
         # tag::instruments-api[]
@@ -80,10 +84,6 @@ class IBOR(unittest.TestCase):
 
         response = instruments_api.upsert_instruments(request_body=definitions)
         items = response.values.items()
-        figi_to_luid = {
-            instrument.identifiers["Figi"]: instrument.lusid_instrument_id
-            for _, instrument in items
-        }
 
         luids = pd.DataFrame([
             {"Figi": instrument.identifiers["Figi"],
@@ -449,7 +449,7 @@ class IBOR(unittest.TestCase):
             scope=scope,
             code=portfolio_code,
             property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=1, day=1, hour=1, tzinfo=pytz.UTC).isoformat(),
+            effective_at=datetime(year=2020, month=1, day=1, hour=1, tzinfo=pytz.UTC),
         )
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-funds-loaded[]
@@ -461,7 +461,7 @@ class IBOR(unittest.TestCase):
             scope=scope,
             code=portfolio_code,
             property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=1, day=2, hour=1, tzinfo=pytz.UTC).isoformat(),
+            effective_at=datetime(year=2020, month=1, day=2, hour=1, tzinfo=pytz.UTC),
         )
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-first-day-trading[]
@@ -473,7 +473,7 @@ class IBOR(unittest.TestCase):
             scope=scope,
             code=portfolio_code,
             property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=1, day=3, hour=1, tzinfo=pytz.UTC).isoformat(),
+            effective_at=datetime(year=2020, month=1, day=3, hour=1, tzinfo=pytz.UTC),
         )
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-second-day-trading[]
@@ -484,7 +484,8 @@ class IBOR(unittest.TestCase):
         holding_response = transaction_portfolios_api.get_holdings(
             scope=scope,
             code=portfolio_code,
-            property_keys=["Instrument/default/Name"]
+            property_keys=["Instrument/default/Name"],
+            effective_at=datetime(year=2020, month=2, day=1, hour=1, tzinfo=pytz.UTC),
         )
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-today[]
@@ -517,13 +518,28 @@ class IBOR(unittest.TestCase):
         # end::load-quotes[]
         self.write_to_test_output(quotes, "quotes.csv")
 
+        # tag::load-quotes-get-luid[]
+        response = instruments_api.get_instruments(
+            identifier_type='Figi',
+            request_body=quotes["figi"].values.tolist())
+        instruments = pd.DataFrame([{
+            "figi": instrument.identifiers["Figi"],
+            "luid": instrument.lusid_instrument_id}
+            for _, instrument in response.values.items()
+        ])
+        quotes_with_luid = pd.merge(quotes, instruments, on=["figi"])
+
+        # end::load-quotes-get-luid[]
+        self.write_to_test_output(quotes_with_luid, "quotes_with_luid.csv")
+        self.assertIsNotNone(quotes_with_luid["luid"][0])
+
         # tag::import-quotes[]
         quotes_request = {
             f"quote_request_{quote['instrument_name']}_{quote['date']}": lusid.models.UpsertQuoteRequest(
                 quote_id=lusid.models.QuoteId(
                     quote_series_id=lusid.models.QuoteSeriesId(
                         provider="Lusid",
-                        instrument_id=figi_to_luid[quote["figi"]],
+                        instrument_id=quote["luid"],
                         instrument_id_type="LusidInstrumentId",
                         quote_type="Price",
                         field="mid",
@@ -532,7 +548,7 @@ class IBOR(unittest.TestCase):
                 ),
                 metric_value=lusid.models.MetricValue(value=quote['price'], unit="USD"),
             )
-            for _, quote in quotes.iterrows()
+            for _, quote in quotes_with_luid.iterrows()
         }
 
         quotes_api.upsert_quotes(scope=scope, request_body=quotes_request)
