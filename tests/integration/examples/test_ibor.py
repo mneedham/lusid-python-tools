@@ -388,7 +388,7 @@ class IBOR(unittest.TestCase):
         transactions_request = []
         for row, txn in transactions.iterrows():
             if txn["figi"] == "cash":
-                instrument_identifier = {"Instrument/default/Currency": txn["instrument_currency"]}
+                instrument_identifier = {"Instrument/default/Currency": txn["currency"]}
             else:
                 instrument_identifier = {"Instrument/default/Figi": txn["figi"]}
 
@@ -402,7 +402,7 @@ class IBOR(unittest.TestCase):
                     units=txn["quantity"],
                     transaction_price=lusid.models.TransactionPrice(price=txn["price"], type="Price"),
                     total_consideration=lusid.models.CurrencyAndAmount(
-                        amount=txn["net_money"], currency=txn["instrument_currency"])))
+                        amount=txn["net_money"], currency=txn["currency"])))
 
             transaction_portfolios_api.upsert_transactions(
                 scope=scope, code=portfolio_code, transaction_request=transactions_request)
