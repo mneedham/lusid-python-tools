@@ -488,7 +488,7 @@ class IBOR(unittest.TestCase):
         )
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-today[]
-        self.write_to_test_output(holdings, "holdings.csv")
+        self.write_to_test_output(holdings, "holdings_today.csv")
         self.assertEqual(holdings.shape[0], 4)
 
         # tag::get-holdings-positions[]
