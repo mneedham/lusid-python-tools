@@ -269,6 +269,8 @@ class IBOR(unittest.TestCase):
         now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
         scope = portfolio_code = f"Developer-IBOR-Tutorial-{now}"
 
+        print("Portfolio Code", portfolio_code)
+
         # tag::create-portfolio-api[]
         transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
         # end::create-portfolio-api[]
@@ -331,17 +333,17 @@ class IBOR(unittest.TestCase):
         self.assertEqual(portfolio.properties[portfolio_manager_property].value.label_value, "Matt Smith")
 
         # tag::create-portfolio-with-manager[]
-        # tag::scope-portfolio-code[]
-        portfolio_code = "Developer-IBOR-With-Manager-Tutorial"
-        # end::scope-portfolio-code[]
-        initial_portfolio_code = portfolio_code
-        portfolio_code = f"Developer-IBOR-With-Manager-Tutorial-{now}"
+        # tag::new-portfolio-code[]
+        new_portfolio_code = "Developer-IBOR-With-Manager-Tutorial"
+        # end::new-portfolio-code[]
+        initial_new_portfolio_code = new_portfolio_code
+        new_portfolio_code = f"Developer-IBOR-With-Manager-Tutorial-{now}"
 
         transaction_portfolios_api.create_portfolio(
             scope=scope,
             create_transaction_portfolio_request=lusid.models.CreateTransactionPortfolioRequest(
                 display_name="Developer IBOR With Manager Tutorial",
-                code=portfolio_code,
+                code=new_portfolio_code,
                 created=created_date,
                 base_currency="USD",
                 properties={
@@ -356,7 +358,7 @@ class IBOR(unittest.TestCase):
         # tag::get-updated-portfolio[]
         portfolio = portfolios_api.get_portfolio(
             scope=scope,
-            code=portfolio_code,
+            code=new_portfolio_code,
             property_keys=[portfolio_manager_property]
         )
         portfolio_df = pd.DataFrame([{
@@ -366,7 +368,7 @@ class IBOR(unittest.TestCase):
             "Manager Name": portfolio.properties[portfolio_manager_property].value.label_value,
         }])
         # end::get-updated-portfolio[]
-        portfolio_df.loc[:, "Code"] = initial_portfolio_code
+        portfolio_df.loc[:, "Code"] = initial_new_portfolio_code
         self.write_to_test_output(portfolio_df, "get_new_portfolio.csv")
         self.assertEqual(portfolio.properties[portfolio_manager_property].value.label_value, "David Jones")
 
@@ -432,51 +434,78 @@ class IBOR(unittest.TestCase):
         # HOLDINGS
         ##################
 
-        # tag::holdings-file[]
-        quotes_file = "data/test_ibor/holdings.csv"
-        # end::holdings-file[]
-        quotes_file = Path(__file__).parent.joinpath(quotes_file)
+        # tag::format-holdings[]
+        def display_holdings_summary(response):
+            return pd.DataFrame([{
+                "Instrument": value.properties["Instrument/default/Name"].value.label_value,
+                "Amount": value.cost.amount,
+                "Units": value.units,
+                "Type": value.holding_type
+            } for value in response.values])
+        # end::format-holdings[]
 
-        # tag::load-holdings[]
-        holdings = pd.read_csv(quotes_file)
-        # end::load-holdings[]
+        # tag::get-holdings-funds-loaded[]
+        holding_response = transaction_portfolios_api.get_holdings(
+            scope=scope,
+            code=portfolio_code,
+            property_keys=["Instrument/default/Name"],
+            effective_at=datetime(year=2020, month=1, day=1, hour=1, tzinfo=pytz.UTC).isoformat(),
+        )
+        holdings = display_holdings_summary(holding_response)
+        # end::get-holdings-funds-loaded[]
+        self.write_to_test_output(holdings, "holdings_funds_loaded.csv")
+        self.assertEqual(holdings.shape[0], 1)
+
+        # tag::get-holdings-first-day-trading[]
+        holding_response = transaction_portfolios_api.get_holdings(
+            scope=scope,
+            code=portfolio_code,
+            property_keys=["Instrument/default/Name"],
+            effective_at=datetime(year=2020, month=1, day=2, hour=1, tzinfo=pytz.UTC).isoformat(),
+        )
+        holdings = display_holdings_summary(holding_response)
+        # end::get-holdings-first-day-trading[]
+        self.write_to_test_output(holdings, "holdings_first_day_trading.csv")
+        self.assertEqual(holdings.shape[0], 2)
+
+        # tag::get-holdings-second-day-trading[]
+        holding_response = transaction_portfolios_api.get_holdings(
+            scope=scope,
+            code=portfolio_code,
+            property_keys=["Instrument/default/Name"],
+            effective_at=datetime(year=2020, month=1, day=3, hour=1, tzinfo=pytz.UTC).isoformat(),
+        )
+        holdings = display_holdings_summary(holding_response)
+        # end::get-holdings-second-day-trading[]
+        self.write_to_test_output(holdings, "holdings_second_day_trading.csv")
+        self.assertEqual(holdings.shape[0], 4)
+
+        # tag::get-holdings-today[]
+        holding_response = transaction_portfolios_api.get_holdings(
+            scope=scope,
+            code=portfolio_code,
+            property_keys=["Instrument/default/Name"]
+        )
+        holdings = display_holdings_summary(holding_response)
+        # end::get-holdings-today[]
         self.write_to_test_output(holdings, "holdings.csv")
+        self.assertEqual(holdings.shape[0], 4)
 
-        # tag::set-holdings-api[]
-        transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
-        # end::set-holdings-api[]
-
-        # tag::adjust-holdings[]
-        holdings_adjustments = [
-            lusid.models.HoldingAdjustment(
-                instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
-                instrument_uid=figi_to_luid[holding["figi"]],
-                tax_lots=[lusid.models.TargetTaxLot(units=holding["units"])])
-            for _, holding in holdings.iterrows()
-        ]
-        transaction_portfolios_api.adjust_holdings(
+        # tag::get-holdings-positions[]
+        holding_response = transaction_portfolios_api.get_holdings(
             scope=scope,
             code=portfolio_code,
-            effective_at=datetime(2020, 1, 1, tzinfo=pytz.UTC),
-            adjust_holding_request=holdings_adjustments
+            filter="holdingType eq 'P'",
+            property_keys=["Instrument/default/Name"]
         )
-        # end::adjust-holdings[]
+        holdings = display_holdings_summary(holding_response)
+        # end::get-holdings-positions[]
+        self.write_to_test_output(holdings, "holdings_positions.csv")
+        self.assertEqual(holdings.shape[0], 3)
 
-        # tag::set-holdings[]
-        holdings_adjustments = [
-            lusid.models.HoldingAdjustment(
-                instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
-                instrument_uid=figi_to_luid[holding["figi"]],
-                tax_lots=[lusid.models.TargetTaxLot(units=holding["units"])])
-            for _, holding in holdings.iterrows()
-        ]
-        transaction_portfolios_api.set_holdings(
-            scope=scope,
-            code=portfolio_code,
-            effective_at=datetime(2020, 1, 1, tzinfo=pytz.UTC),
-            adjust_holding_request=holdings_adjustments
-        )
-        # end::set-holdings[]
+        ##################
+        # QUOTES
+        ##################
 
         # tag::quotes-file[]
         quotes_file = "data/test_ibor/quotes.csv"
@@ -540,7 +569,7 @@ class IBOR(unittest.TestCase):
         valuation_all = pd.DataFrame(response)
         # end::get-valuation-total[]
         self.write_to_test_output(valuation_all, "valuation-all.csv")
-        self.assertAlmostEqual(valuation_all["Sum(Holding/default/PV)"].values[0], 532212.0, 3)
+        self.assertAlmostEqual(valuation_all["Sum(Holding/default/PV)"].values[0], 1156135, 3)
 
         # tag::get-valuation-total-multiple-days[]
         date_from = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
@@ -549,7 +578,7 @@ class IBOR(unittest.TestCase):
         valuation_multiple_days = pd.DataFrame(response).sort_values(["Analytic/default/ValuationDate"])
         # end::get-valuation-total-multiple-days[]
         self.write_to_test_output(valuation_multiple_days, "valuation-all-multiple-days.csv")
-        self.assertAlmostEqual(valuation_multiple_days["Sum(Holding/default/PV)"].values[0], 532212.0, 3)
+        self.assertAlmostEqual(valuation_multiple_days["Sum(Holding/default/PV)"].values[1], 1141134.0, 3)
 
         # tag::get-valuation-by-instrument[]
         metrics = [
@@ -567,7 +596,7 @@ class IBOR(unittest.TestCase):
         valuation = pd.DataFrame(response)
         # end::get-valuation-20210421[]
         self.write_to_test_output(valuation, "valuation-20210421.csv")
-        self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.631707, 3)
+        self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.53966, 3)
 
         # tag::get-valuation-20210422[]
         effective_at = datetime(year=2021, month=4, day=22, tzinfo=pytz.UTC)
@@ -575,11 +604,59 @@ class IBOR(unittest.TestCase):
         valuation = pd.DataFrame(response)
         # end::get-valuation-20210422[]
         self.write_to_test_output(valuation, "valuation-20210422.csv")
-        self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.6397, 3)
+        self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.5467, 3)
 
-        portfolios_api.delete_portfolio(scope, portfolio_code)
+        # Explicitly set holdings
+
+        # tag::holdings-file[]
+        quotes_file = "data/test_ibor/holdings.csv"
+        # end::holdings-file[]
+        quotes_file = Path(__file__).parent.joinpath(quotes_file)
+
+        # tag::load-holdings[]
+        holdings = pd.read_csv(quotes_file)
+        # end::load-holdings[]
+        self.write_to_test_output(holdings, "holdings.csv")
+
+        # tag::set-holdings-api[]
+        transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
+        # end::set-holdings-api[]
+
+        # tag::adjust-holdings[]
+        holdings_adjustments = [
+            lusid.models.HoldingAdjustment(
+                instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
+                instrument_uid=holding["figi"],
+                tax_lots=[lusid.models.TargetTaxLot(units=holding["units"])])
+            for _, holding in holdings.iterrows()
+        ]
+        transaction_portfolios_api.adjust_holdings(
+            scope=scope,
+            code=portfolio_code,
+            effective_at=datetime(2020, 1, 1, tzinfo=pytz.UTC),
+            adjust_holding_request=holdings_adjustments
+        )
+        # end::adjust-holdings[]
+
+        # tag::set-holdings[]
+        holdings_adjustments = [
+            lusid.models.HoldingAdjustment(
+                instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
+                instrument_uid=holding["figi"],
+                tax_lots=[lusid.models.TargetTaxLot(units=holding["units"])])
+            for _, holding in holdings.iterrows()
+        ]
+        transaction_portfolios_api.set_holdings(
+            scope=scope,
+            code=portfolio_code,
+            effective_at=datetime(2020, 1, 1, tzinfo=pytz.UTC),
+            adjust_holding_request=holdings_adjustments
+        )
+        # end::set-holdings[]
+
+        # portfolios_api.delete_portfolio(scope, portfolio_code)
 
         # tag::delete-instruments[]
-        for figi in instruments.loc[:, 'figi'].values:
-            instruments_api.delete_instrument(identifier_type='Figi', identifier=figi)
+        # for figi in instruments.loc[:, 'figi'].values:
+        #     instruments_api.delete_instrument(identifier_type='Figi', identifier=figi)
         # end::delete-instruments[]
