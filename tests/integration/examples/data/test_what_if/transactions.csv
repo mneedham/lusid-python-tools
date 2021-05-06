@@ -1,0 +1,5 @@
+txn_id,trade_date,transaction_type,instrument_desc,instrument_id,currency,quantity,price,net_money
+tx_00001,2021-01-01,FundsIn,CASH_USD,cash,USD,1000,1,1000
+tx_00002,2021-01-02,Buy,Dogecoin,DOGE,USD,100000,0.0054048028,540.48028
+tx_00003,2021-02-02,Sell,Dogecoin,DOGE,USD,50000,0.0314791877,1573.959385
+tx_00004,2021-02-02,Buy,XRP,XRP,USD,4000,0.3680820549,1472.3282196

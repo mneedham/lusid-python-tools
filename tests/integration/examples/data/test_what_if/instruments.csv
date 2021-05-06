@@ -1,0 +1,4 @@
+instrument_name,id,currency,asset_class
+Dogecoin,DOGE,USD,crypto
+Bitcoin,BTC,USD,crypto
+XRP,XRP,USD,crypto

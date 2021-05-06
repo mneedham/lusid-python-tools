@@ -1,0 +1,9 @@
+identifier_type,property_key
+ShareClassFigi,Instrument/default/ShareClassFigi
+Wertpapier,Instrument/default/Wertpapier
+RIC,Instrument/default/RIC
+CompositeFigi,Instrument/default/CompositeFigi
+Ticker,Instrument/default/Ticker
+Cusip,Instrument/default/Cusip
+Isin,Instrument/default/Isin
+Sedol,Instrument/default/Sedol
