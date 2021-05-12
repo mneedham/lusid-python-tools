@@ -61,16 +61,6 @@ class IBOR(unittest.TestCase):
         # end::load-instruments[]
         self.write_to_test_output(instruments, "instruments.csv")
 
-        # tag::identifiers[]
-        response = instruments_api.get_instrument_identifier_types()
-        identifiers = pd.DataFrame(response.to_dict()["values"])
-        unique_identifiers = identifiers.loc[identifiers["is_unique_identifier_type"]]
-        unique_identifiers = unique_identifiers.drop(["is_unique_identifier_type"], axis=1)
-        # end::identifiers[]
-
-        self.write_to_test_output(unique_identifiers, "identifiers.csv")
-        self.assertGreater(unique_identifiers.shape[0], 0)
-
         # tag::import-instruments[]
         identifier_columns = [('figi', 'Figi'), ('client_internal', 'ClientInternal')]
         definitions = {}

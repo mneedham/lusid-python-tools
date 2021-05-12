@@ -203,17 +203,15 @@ class WhatIf(unittest.TestCase):
 
         derived_portfolio_code = f"Developer-WhatIf-Tutorial-Derived-{now}"
 
-        derived_request = lusid.models.CreateDerivedTransactionPortfolioRequest(
-            display_name=f"Derived Portfolio of {portfolio_code}",
-            code=derived_portfolio_code,
-            parent_portfolio_id=lusid.models.ResourceId(scope=scope, code=portfolio_code),
-            description="What if we didn't sell DOGE?",
-            created=created_date
-        )
-
         derived_api.create_derived_portfolio(
             scope=scope,
-            create_derived_transaction_portfolio_request=derived_request
+            create_derived_transaction_portfolio_request=(lusid.models.CreateDerivedTransactionPortfolioRequest(
+                display_name=f"Derived Portfolio of {portfolio_code}",
+                code=derived_portfolio_code,
+                parent_portfolio_id=lusid.models.ResourceId(scope=scope, code=portfolio_code),
+                description="What if we didn't sell DOGE?",
+                created=created_date
+            ))
         )
 
         # Undo transactions

@@ -1,0 +1,58 @@
+{
+    "description": "",
+    "applications": [
+        "LUSID"
+    ],
+    "grant": "Allow",
+    "selectors": [
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "uk-equities-trading",
+                    "scope": "Developer-Entitlements-Tutorial-2021-05-12-12_26_41"
+                },
+                "actions": [
+                    {
+                        "scope": "default",
+                        "activity": "Read",
+                        "entity": "Portfolio"
+                    },
+                    {
+                        "scope": "default",
+                        "activity": "List",
+                        "entity": "Portfolio"
+                    },
+                    {
+                        "scope": "default",
+                        "activity": "ReadMetadata",
+                        "entity": "Portfolio"
+                    }
+                ]
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "field": "*",
+                    "provider": "*",
+                    "quotetype": "*",
+                    "pricesource": "*",
+                    "instrumentid": "*",
+                    "instrumentidtype": "*",
+                    "scope": "Developer-Entitlements-Tutorial-2021-05-12-12_26_41"
+                },
+                "actions": [
+                    {
+                        "scope": "default",
+                        "activity": "Read",
+                        "entity": "Quote"
+                    }
+                ]
+            }
+        }
+    ],
+    "when": {
+        "activate": "2021-01-01T00:00:00.0000000+00:00",
+        "deactivate": "9999-12-31T23:59:59.9990000+00:00"
+    }
+}

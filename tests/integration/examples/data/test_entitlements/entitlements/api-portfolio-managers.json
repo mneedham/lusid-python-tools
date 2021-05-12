@@ -1,0 +1,234 @@
+{
+    "description": "API Access for portfolio managers",
+    "applications": [
+        "LUSID"
+    ],
+    "grant": "Allow",
+    "selectors": [
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-aggregation-getvaluation",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run GetValuation",
+                "description": "Run the GetValuation API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-instruments-getinstrument",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run GetInstrument",
+                "description": "Run the GetInstrument API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-instruments-getinstruments",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run GetInstruments",
+                "description": "Run the GetInstruments API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-instruments-listinstruments",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run ListInstruments",
+                "description": "Run the ListInstruments API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-portfolios-getportfolio",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run GetPortfolio",
+                "description": "Run the GetPortfolio API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-portfolios-listportfolios",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run ListPortfolios",
+                "description": "Run the ListPortfolios API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-quotes-getquotes",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run GetQuotes",
+                "description": "Run the GetQuotes API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-quotes-listquotes",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run ListQuotes",
+                "description": "Run the ListQuotes API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-searchproxy-instrumentssearch",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run InstrumentsSearch",
+                "description": "Run the InstrumentsSearch API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-searchproxy-searchportfolios",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run SearchPortfolios",
+                "description": "Run the SearchPortfolios API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-transactionportfolios-gettransactions",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run GetTransactions",
+                "description": "Run the GetTransactions API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-transactionportfolios-getholdings",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run GetHoldings",
+                "description": "Run the GetHoldings API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-transactionportfolios-getdetails",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run GetDetails",
+                "description": "Run the GetDetails API endpoint"
+            }
+        }
+    ],
+    "when": {
+        "activate": "2021-05-11T23:00:00.0000000+00:00",
+        "deactivate": "9999-12-31T23:59:59.9990000+00:00"
+    }
+}
