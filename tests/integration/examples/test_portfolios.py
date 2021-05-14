@@ -86,11 +86,13 @@ class Portfolios(unittest.TestCase):
                 display_name="Global Equities Trading",
                 created=created_date
             ))
+        # end::create-portfolio-group[]
 
+        # tag::add-to-portfolio-group[]
         for portfolio_code in [uk_equities_portfolio_code, us_equities_portfolio_code]:
             portfolio_groups_api.add_portfolio_to_group(
                 scope=scope,
                 code=global_portfolio_code,
                 effective_at=created_date,
                 resource_id=lusid.models.ResourceId(scope=scope, code=portfolio_code))
-        # end::create-portfolio-group[]
+        # end::add-to-portfolio-group[]
