@@ -11,11 +11,6 @@ import pytz
 from datetime import datetime
 # end::imports-dates[]
 
-# tag::imports[]
-
-# end::imports[]
-
-
 class Portfolios(unittest.TestCase):
     def write_to_test_output(self, df, file_name):
         df.to_csv(Path(__file__).parent.joinpath(f"data/test_portfolios/test_output/{file_name}"), index=False)
@@ -29,11 +24,11 @@ class Portfolios(unittest.TestCase):
 
         # tag::derived-api[]
         derived_api = api_factory.build(lusid.api.DerivedTransactionPortfoliosApi)
-        # tag::derived-api[]
+        # end::derived-api[]
 
         # tag::portfolio-groups-api[]
         portfolio_groups_api = api_factory.build(lusid.api.PortfolioGroupsApi)
-        # tag::portfolio-groups-api[]
+        # end::portfolio-groups-api[]
 
         # tag::scope[]
         scope = "Developer-Portfolios-Tutorial"
@@ -71,13 +66,12 @@ class Portfolios(unittest.TestCase):
         # tag::create-derived-portfolio[]
         derived_api.create_derived_portfolio(
             scope=scope,
-            create_derived_transaction_portfolio_request=(lusid.models.CreateDerivedTransactionPortfolioRequest(
+            create_derived_transaction_portfolio_request=lusid.models.CreateDerivedTransactionPortfolioRequest(
                 display_name=f"Derived Portfolio of {uk_equities_portfolio_code}",
                 code=derived_portfolio_code,
                 parent_portfolio_id=lusid.models.ResourceId(scope=scope, code=uk_equities_portfolio_code),
                 created=created_date
             ))
-        )
         # end::create-derived-portfolio[]
 
         # tag::global-portfolio-code[]
