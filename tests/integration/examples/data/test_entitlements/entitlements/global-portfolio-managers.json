@@ -1,0 +1,47 @@
+{
+    "description": "Additional access for global portfolio managers",
+    "applications": [
+        "LUSID"
+    ],
+    "grant": "Allow",
+    "selectors": [
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-searchproxy-searchportfoliogroups",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run SearchPortfolioGroups",
+                "description": "Run the SearchPortfolioGroups API endpoint"
+            }
+        },
+        {
+            "idSelectorDefinition": {
+                "identifier": {
+                    "code": "api-portfoliogroups-listportfoliogroups",
+                    "scope": "LUSID"
+                },
+                "actions": [
+                    {
+                        "scope": "LUSID",
+                        "activity": "Execute",
+                        "entity": "Feature"
+                    }
+                ],
+                "name": "Run ListPortfolioGroups",
+                "description": "Run the ListPortfolioGroups API endpoint"
+            }
+        }
+    ],
+    "when": {
+        "activate": "2021-01-01T00:00:00.0000000+00:00",
+        "deactivate": "9999-12-31T23:59:59.9990000+00:00"
+    }
+}

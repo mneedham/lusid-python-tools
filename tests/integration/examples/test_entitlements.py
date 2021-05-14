@@ -26,6 +26,7 @@ class Entitlements(unittest.TestCase):
 
         transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
         instruments_api = api_factory.build(lusid.api.InstrumentsApi)
+        portfolio_groups_api = api_factory.build(lusid.api.PortfolioGroupsApi)
 
         now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
         scope = f"Developer-Entitlements-Tutorial-{now}"
@@ -129,3 +130,25 @@ class Entitlements(unittest.TestCase):
 
         transaction_portfolios_api.upsert_transactions(
             scope=scope, code=uk_portfolio_code, transaction_request=transactions_request)
+
+        global_portfolio_code = "global-equities-trading"
+        portfolio_groups_api.create_portfolio_group(
+            scope=scope,
+            create_portfolio_group_request=lusid.models.CreatePortfolioGroupRequest(
+                code=global_portfolio_code,
+                display_name="Global Equities Trading",
+                created=created_date
+            ))
+
+        portfolio_groups_api.add_portfolio_to_group(
+            scope=scope,
+            code=global_portfolio_code,
+            effective_at=created_date,
+            resource_id=lusid.models.ResourceId(scope=scope, code=uk_portfolio_code))
+        portfolio_groups_api.add_portfolio_to_group(
+            scope=scope,
+            code=global_portfolio_code,
+            effective_at=created_date,
+            resource_id=lusid.models.ResourceId(scope=scope, code=us_portfolio_code))
+
+
