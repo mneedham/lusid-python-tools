@@ -23,9 +23,13 @@ class UserDefinedProperties(unittest.TestCase):
         property_definitions_api = api_factory.build(lusid.api.PropertyDefinitionsApi)
         # end::create-apis[]
 
-        # tag::create-property[]
+        # tag::scope[]
+        scope = "Developer-Properties-Tutorial"
+        # end::scope[]
         now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
-        scope = portfolio_code = f"Developer-Set-Holdings-Tutorial-{now}"
+        scope = f"Developer-Properties-Tutorial-{now}"
+
+        # tag::create-property[]
         response = property_definitions_api.create_property_definition(
             create_property_definition_request=models.CreatePropertyDefinitionRequest(
                 domain="Portfolio",
