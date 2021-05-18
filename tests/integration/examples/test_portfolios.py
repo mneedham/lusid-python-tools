@@ -78,6 +78,10 @@ class Portfolios(unittest.TestCase):
         global_portfolio_code = "global-equities-trading"
         # end::global-portfolio-code[]
 
+        # tag::creation-date[]
+        created_date = datetime(year=2021, month=1, day=1, tzinfo=pytz.UTC).isoformat()
+        # end::creation-date[]
+
         # tag::create-portfolio-group[]
         portfolio_groups_api.create_portfolio_group(
             scope=scope,
