@@ -1,0 +1,3 @@
+movement_types,side,direction,properties,mappings,name
+CashFxForward,Side1,-1,{},[],
+CashFxForward,Side2,1,{},[],

@@ -1,0 +1,4 @@
+type,description,transaction_class,transaction_group,transaction_roles
+Buy,Purchase,Basic,default,LongLonger
+BY,PURCHASE,Basic,alt1,LongLonger
+B,Purchase,Basic,default,LongLonger

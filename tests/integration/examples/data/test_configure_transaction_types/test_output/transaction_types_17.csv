@@ -1,0 +1,3 @@
+type,description,transaction_class,transaction_group,transaction_roles
+CSFC,Close Short Futures Contract,Futures,default,ShortLonger
+C3,CLOSE SHORT FUTURES CONTRACT,Futures,alt1,ShortLonger

@@ -1,0 +1,3 @@
+movement_types,side,direction,properties,mappings,name
+StockMovement,Side1,1,"{'TransactionConfiguration/default/TaxLotSelectionMethod': {'key': 'TransactionConfiguration/default/TaxLotSelectionMethod', 'value': {'label_value': 'FirstInFirstOut', 'metric_value': None, 'label_value_set': None}}}",[],
+CashCommitment,Side2,-1,{},[],

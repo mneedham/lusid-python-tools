@@ -1,0 +1,3 @@
+type,description,transaction_class,transaction_group,transaction_roles
+FundsIn,Deposit New Funds,CashTransfers,default,Longer
+FI,FUNDS IN,CashTransfers,alt1,Longer

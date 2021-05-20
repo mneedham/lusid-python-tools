@@ -1,0 +1,2 @@
+type,description,transaction_class,transaction_group,transaction_roles
+FxBuy,Spot FX Purchase,SpotFx,default,Longer

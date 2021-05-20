@@ -1,0 +1,4 @@
+type,description,transaction_class,transaction_group,transaction_roles
+StockIn,Transfer In,StockTransfers,default,Longer
+SI,SECURITY IN,StockTransfers,alt1,LongLonger
+SW,SHORT SECURITY OUT,StockTransfers,alt1,ShortLonger

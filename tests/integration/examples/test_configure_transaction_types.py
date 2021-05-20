@@ -22,9 +22,11 @@ class ConfigureTransactionTypes(unittest.TestCase):
 
         # tag::get-transaction-types[]
         response = system_configuration_api.list_configuration_transaction_types()
-        print(response)
         transaction_types = response.transaction_configs
-        aliases = [txn_type.aliases for txn_type in transaction_types]
-        list_aliases = pd.DataFrame([alias.to_dict() for sublist in aliases for alias in sublist])
+
+        for index, txn_type in enumerate(transaction_types):
+            aliases = pd.DataFrame([alias.to_dict() for alias in txn_type.aliases])
+            movements = pd.DataFrame([movement.to_dict() for movement in txn_type.movements])
         # end::get-transaction-types[]
-        self.write_to_test_output(list_aliases, "transaction_types.csv")
+            self.write_to_test_output(aliases, f"transaction_types_{index}.csv")
+            self.write_to_test_output(movements, f"movements_{index}.csv")

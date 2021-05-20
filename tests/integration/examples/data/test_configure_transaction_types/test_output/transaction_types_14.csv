@@ -1,0 +1,3 @@
+type,description,transaction_class,transaction_group,transaction_roles
+OLFC,Open Long Futures Contract,Futures,default,LongLonger
+O1,OPEN LONG FUTURES CONTRACT,Futures,alt1,LongLonger

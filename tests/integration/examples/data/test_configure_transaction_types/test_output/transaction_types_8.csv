@@ -1,0 +1,2 @@
+type,description,transaction_class,transaction_group,transaction_roles
+FwdFxBuy,Forward FX Purchase,FwdFx,default,Longer
