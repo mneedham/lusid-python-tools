@@ -105,8 +105,11 @@ class Portfolios(unittest.TestCase):
                 resource_id=lusid.models.ResourceId(scope=scope, code=portfolio_code))
         # end::add-to-portfolio-group[]
 
-        # tag::create-reference-portfolio[]
+        # tag::reference-portfolio-code[]
         reference_portfolio_code = "reference_portfolio"
+        # tag::reference-portfolio-code[]
+
+        # tag::create-reference-portfolio[]
         created_date = datetime(year=2021, month=1, day=1, tzinfo=pytz.UTC).isoformat()
 
         reference_portfolio_api.create_reference_portfolio(
