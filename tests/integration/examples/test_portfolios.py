@@ -22,6 +22,10 @@ class Portfolios(unittest.TestCase):
         transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
         # end::create-portfolio-api[]
 
+        # tag::create-reference-portfolio-api[]
+        reference_portfolio_api = api_factory.build(lusid.api.ReferencePortfolioApi)
+        # end::create-reference-portfolio-api[]
+
         # tag::derived-api[]
         derived_api = api_factory.build(lusid.api.DerivedTransactionPortfoliosApi)
         # end::derived-api[]
@@ -100,3 +104,16 @@ class Portfolios(unittest.TestCase):
                 effective_at=created_date,
                 resource_id=lusid.models.ResourceId(scope=scope, code=portfolio_code))
         # end::add-to-portfolio-group[]
+
+        # tag::create-reference-portfolio[]
+        reference_portfolio_code = "reference_portfolio"
+        created_date = datetime(year=2021, month=1, day=1, tzinfo=pytz.UTC).isoformat()
+
+        reference_portfolio_api.create_reference_portfolio(
+            scope=scope,
+            create_reference_portfolio_request=lusid.models.CreateReferencePortfolioRequest(
+                display_name="Developer Portfolios Tutorial",
+                code=reference_portfolio_code,
+                created=created_date
+            ))
+        # end::create-reference-portfolio[]
