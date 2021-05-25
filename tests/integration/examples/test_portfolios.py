@@ -107,7 +107,7 @@ class Portfolios(unittest.TestCase):
 
         # tag::reference-portfolio-code[]
         reference_portfolio_code = "reference_portfolio"
-        # tag::reference-portfolio-code[]
+        # end::reference-portfolio-code[]
 
         # tag::create-reference-portfolio[]
         created_date = datetime(year=2021, month=1, day=1, tzinfo=pytz.UTC).isoformat()
