@@ -448,7 +448,6 @@ class IBOR(unittest.TestCase):
             return pd.DataFrame([{
                 "Transaction ID": value.transaction_id,
                 "Instrument": value.properties["Instrument/default/Name"].value.label_value,
-                "Entry Date": value.entry_date_time,
                 "Amount": value.total_consideration.amount,
                 "Units": value.units,
                 "Type": value.type,
@@ -458,17 +457,19 @@ class IBOR(unittest.TestCase):
 
         # tag::get-transactions[]
         response = transaction_portfolios_api.get_transactions(
-            scope=scope, code=portfolio_code, property_keys=["Instrument/default/Name"], )
+            scope=scope,
+            code=portfolio_code,
+            property_keys=["Instrument/default/Name"])
         tx_response = display_transactions_summary(response)
         # end::get-transactions[]
         self.write_to_test_output(tx_response, "transactions_response.csv")
 
         # tag::get-transactions-filter[]
         response = transaction_portfolios_api.get_transactions(
-            scope=scope, code=portfolio_code,
+            scope=scope,
+            code=portfolio_code,
             property_keys=["Instrument/default/Name"],
-            filter="type eq 'Buy'"
-        )
+            filter="type eq 'Buy'")
         tx_response = display_transactions_summary(response)
         # end::get-transactions-filter[]
         self.write_to_test_output(tx_response, "transactions_filter_response.csv")
