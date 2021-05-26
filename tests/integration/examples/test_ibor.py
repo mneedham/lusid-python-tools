@@ -375,7 +375,7 @@ class IBOR(unittest.TestCase):
         # tag::create-portfolio-with-shk[]
         strategy_property_key = f"{domain}/{scope}/{code}"
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
-        
+
         response = transaction_portfolios_api.create_portfolio(
             scope=scope,
             create_transaction_portfolio_request=lusid.models.CreateTransactionPortfolioRequest(
@@ -451,6 +451,7 @@ class IBOR(unittest.TestCase):
                 "Entry Date": value.entry_date_time,
                 "Amount": value.total_consideration.amount,
                 "Units": value.units,
+                "Type": value.type,
             } for value in response.values])
 
         # end::format-transactions[]
@@ -461,6 +462,16 @@ class IBOR(unittest.TestCase):
         tx_response = display_transactions_summary(response)
         # end::get-transactions[]
         self.write_to_test_output(tx_response, "transactions_response.csv")
+
+        # tag::get-transactions-filter[]
+        response = transaction_portfolios_api.get_transactions(
+            scope=scope, code=portfolio_code,
+            property_keys=["Instrument/default/Name"],
+            filter="type eq 'Buy'"
+        )
+        tx_response = display_transactions_summary(response)
+        # end::get-transactions-filter[]
+        self.write_to_test_output(tx_response, "transactions_filter_response.csv")
 
         ##################
         # HOLDINGS
