@@ -389,7 +389,7 @@ class IBOR(unittest.TestCase):
                 display_name="Developer IBOR SHK Tutorial",
                 code=portfolio_code_with_shk,
                 created=created_date,
-                sub_holding_keys=[strategy_property_key],
+                sub_holding_keys=[strategy_property_key], # <1>
                 base_currency="USD"))
         # end::create-portfolio-with-shk[]
         print(response.id.code)
@@ -470,7 +470,7 @@ class IBOR(unittest.TestCase):
                     transaction_price=lusid.models.TransactionPrice(price=txn["price"], type="Price"),
                     total_consideration=lusid.models.CurrencyAndAmount(
                         amount=txn["net_money"], currency=txn["currency"]),
-                    properties={
+                    properties={ # <1>
                         strategy_property_key: lusid.PerpetualProperty(
                             key=strategy_property_key,
                             value=lusid.PropertyValue(label_value=txn["strategy"]))
