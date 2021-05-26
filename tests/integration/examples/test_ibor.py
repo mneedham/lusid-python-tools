@@ -354,7 +354,6 @@ class IBOR(unittest.TestCase):
         # tag::sub-holding-key-property[]
         domain = "Transaction"
         code = "strategy"
-        strategy_property_key = f"{domain}/{scope}/{code}"
         # end::sub-holding-key-property[]
 
         # tag::create-sub-holding-key-property[]
@@ -369,10 +368,11 @@ class IBOR(unittest.TestCase):
         # end::create-sub-holding-key-property[]
 
         # tag::portfolio-code-shk[]
-        portfolio_code="Developer-IBOR-SHK-Tutorial"
+        portfolio_code = "Developer-IBOR-SHK-Tutorial"
         # end::portfolio-code-shk[]
 
         # tag::create-portfolio-with-shk[]
+        strategy_property_key = f"{domain}/{scope}/{code}"
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
         response = transaction_portfolios_api.create_portfolio(
             scope=scope,
