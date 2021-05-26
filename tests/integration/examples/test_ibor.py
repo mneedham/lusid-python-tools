@@ -355,9 +355,11 @@ class IBOR(unittest.TestCase):
         code = "strategy"
         # end::sub-holding-key-property[]
 
-        # tag::create-sub-holding-key-property[]
+        # tag::sub-holding-key-domain-property[]
         domain = "Transaction"
+        # end::sub-holding-key-domain-property[]
 
+        # tag::create-sub-holding-key-property[]
         response = api_factory.build(lusid.api.PropertyDefinitionsApi).create_property_definition(
             create_property_definition_request=lusid.models.CreatePropertyDefinitionRequest(
                 domain=domain,
@@ -374,8 +376,11 @@ class IBOR(unittest.TestCase):
         portfolio_code_with_shk = "Developer-IBOR-SHK-Tutorial"
         # end::portfolio-code-shk[]
 
-        # tag::create-portfolio-with-shk[]
+        # tag::portfolio-with-shk-property-key[]
         strategy_property_key = f"{domain}/{scope}/{code}"
+        # end::portfolio-with-shk-property-key[]
+
+        # tag::create-portfolio-with-shk[]
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
 
         response = transaction_portfolios_api.create_portfolio(
@@ -440,11 +445,7 @@ class IBOR(unittest.TestCase):
                     transaction_price=lusid.models.TransactionPrice(price=txn["price"], type="Price"),
                     total_consideration=lusid.models.CurrencyAndAmount(
                         amount=txn["net_money"], currency=txn["currency"]),
-                    properties={
-                        strategy_property_key: lusid.PerpetualProperty(
-                            key=strategy_property_key,
-                            value=lusid.PropertyValue(label_value=txn["strategy"]))
-                    }))
+                    ))
 
         transaction_portfolios_api.upsert_transactions(
             scope=scope, code=portfolio_code_with_shk, transaction_request=transactions_request)
@@ -468,7 +469,13 @@ class IBOR(unittest.TestCase):
                     units=txn["quantity"],
                     transaction_price=lusid.models.TransactionPrice(price=txn["price"], type="Price"),
                     total_consideration=lusid.models.CurrencyAndAmount(
-                        amount=txn["net_money"], currency=txn["currency"])))
+                        amount=txn["net_money"], currency=txn["currency"]),
+                    properties={
+                        strategy_property_key: lusid.PerpetualProperty(
+                            key=strategy_property_key,
+                            value=lusid.PropertyValue(label_value=txn["strategy"]))
+                    }
+                ))
 
         transaction_portfolios_api.upsert_transactions(
             scope=scope, code=portfolio_code, transaction_request=transactions_request)
