@@ -1,6 +1,7 @@
-txn_id,date,tx_type,instrument,figi,currency,quantity,price,net_money
-tx_00001,2020-01-01,FundsIn,CASH_USD,cash,USD,1000000,1.0,1000000
-tx_00002,2020-01-02,Buy,Amazon_Nasdaq_AMZN,BBG000BVPXP1,USD,75,1902.88,142716
-tx_00003,2020-01-03,Buy,Apple_Nasdaq_AAPL,BBG000B9XVV8,USD,300,74.95,22485
-tx_00004,2020-01-03,Buy,CoinBase_Nasdaq_COIN,BBG00ZGF7HS6,USD,500,328.28,164140
-tx_00005,2020-01-04,Buy,Amazon_Nasdaq_AMZN,BBG000BVPXP1,USD,25,1869.44,46736
+txn_id,date,tx_type,instrument,figi,currency,quantity,price,net_money,strategy
+tx_00001,2020-01-01,FundsIn,CASH_USD,cash,USD,500000,1.0,500000,tech
+tx_00002,2020-01-01,FundsIn,CASH_USD,cash,USD,500000,1.0,500000,nasdaq-tracker
+tx_00003,2020-01-02,Buy,Amazon_Nasdaq_AMZN,BBG000BVPXP1,USD,75,1902.88,142716,tech
+tx_00004,2020-01-03,Buy,Apple_Nasdaq_AAPL,BBG000B9XVV8,USD,300,74.95,22485,tech
+tx_00005,2020-01-03,Buy,CoinBase_Nasdaq_COIN,BBG00ZGF7HS6,USD,500,328.28,164140,tech
+tx_00006,2020-01-04,Buy,Amazon_Nasdaq_AMZN,BBG000BVPXP1,USD,25,1869.44,46736,tech
