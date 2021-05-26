@@ -267,16 +267,22 @@ class IBOR(unittest.TestCase):
         transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
         # end::create-portfolio-api[]
 
+        # tag::sub-holding-key-property[]
+        domain = "Transaction"
+        code = "strategy"
+        strategy_property_key = f"{domain}/{scope}/{code}"
+        # tag::sub-holding-key-property[]
+
+        # tag::create-sub-holding-key-property[]
         response = api_factory.build(lusid.api.PropertyDefinitionsApi).create_property_definition(
             create_property_definition_request=lusid.models.CreatePropertyDefinitionRequest(
-                domain="Transaction",
+                domain=domain,
                 scope=scope,
-                code="strategy",
+                code=code,
                 display_name="Investment strategy",
                 data_type_id=lusid.ResourceId(scope="system", code="string"),
             ))
-        strategy_property_key = response.key
-        print(strategy_property_key)
+        # end::create-sub-holding-key-property[]
 
         # tag::create-portfolio[]
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
@@ -286,7 +292,7 @@ class IBOR(unittest.TestCase):
                 display_name="Developer IBOR Tutorial",
                 code=portfolio_code,
                 created=created_date,
-                # sub_holding_keys=[response.key],
+                sub_holding_keys=[response.key],
                 base_currency="USD"))
         # end::create-portfolio[]
         self.assertIsNotNone(portfolio_code)
@@ -341,7 +347,6 @@ class IBOR(unittest.TestCase):
         # end::new-portfolio-code[]
         initial_new_portfolio_code = new_portfolio_code
         new_portfolio_code = f"Developer-IBOR-With-Manager-Tutorial-{now}"
-
 
         # tag::create-portfolio-with-manager[]
         transaction_portfolios_api.create_portfolio(
