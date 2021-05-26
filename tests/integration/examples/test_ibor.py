@@ -352,11 +352,11 @@ class IBOR(unittest.TestCase):
         # end::create-portfolio-with-manager[]
 
         # tag::sub-holding-key-property[]
-        domain = "Transaction"
         code = "strategy"
         # end::sub-holding-key-property[]
 
         # tag::create-sub-holding-key-property[]
+        domain = "Transaction"
         response = api_factory.build(lusid.api.PropertyDefinitionsApi).create_property_definition(
             create_property_definition_request=lusid.models.CreatePropertyDefinitionRequest(
                 domain=domain,
