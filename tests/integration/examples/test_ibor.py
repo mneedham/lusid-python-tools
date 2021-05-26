@@ -357,6 +357,7 @@ class IBOR(unittest.TestCase):
 
         # tag::create-sub-holding-key-property[]
         domain = "Transaction"
+
         response = api_factory.build(lusid.api.PropertyDefinitionsApi).create_property_definition(
             create_property_definition_request=lusid.models.CreatePropertyDefinitionRequest(
                 domain=domain,
@@ -374,6 +375,7 @@ class IBOR(unittest.TestCase):
         # tag::create-portfolio-with-shk[]
         strategy_property_key = f"{domain}/{scope}/{code}"
         created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
+        
         response = transaction_portfolios_api.create_portfolio(
             scope=scope,
             create_transaction_portfolio_request=lusid.models.CreateTransactionPortfolioRequest(
