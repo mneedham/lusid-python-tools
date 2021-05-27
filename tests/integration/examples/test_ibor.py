@@ -793,14 +793,14 @@ class IBOR(unittest.TestCase):
                     "Instrument/default/Figi": "BBG00ZGF7HS6"
                 },
                 units_factor=1,
-                cost_factor=1,
+                cost_factor=0,
             ),
             output_transitions=[lusid.models.CorporateActionTransitionComponentRequest(
                 instrument_identifiers={
                     "Instrument/default/Currency": "USD"
                 },
                 units_factor=10,
-                cost_factor=1,
+                cost_factor=0,
             )]
         )
         # end::create-transition[]
@@ -826,21 +826,38 @@ class IBOR(unittest.TestCase):
         )
         # end::upsert-transition[]
 
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code,
-            property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=1, day=4, hour=1, tzinfo=pytz.UTC),
-        )
-        print(display_holdings_summary(holding_response))
+        # tag::format-reconciliation[]
+        def display_reconciliation(response):
+            return pd.DataFrame([{
+                "Instrument": value.instrument_properties[0].value.label_value,
+                "Left Units": value.left_units,
+                "Right Units": value.right_units,
+                "Left Cost": value.left_cost.amount,
+                "Right Cost": value.right_cost.amount,
 
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code,
-            property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=2, day=5, hour=1, tzinfo=pytz.UTC),
-        )
-        print(display_holdings_summary(holding_response))
+            } for value in response.values])
+        # end::format-reconciliation[]
+
+        # tag::reconciliation-api[]
+        reconciliations_api = api_factory.build(lusid.ReconciliationsApi)
+        # end::reconciliation-api[]
+
+        # tag::reconcile-holdings[]
+        response = reconciliations_api.reconcile_holdings(
+            portfolios_reconciliation_request=lusid.models.PortfoliosReconciliationRequest(
+                instrument_property_keys=["Instrument/default/Name"],
+                left=lusid.models.PortfolioReconciliationRequest(
+                    portfolio_id=lusid.models.ResourceId(scope, portfolio_code),
+                    effective_at=datetime(year=2020, month=1, day=2, tzinfo=pytz.UTC).isoformat()
+                ),
+                right=lusid.models.PortfolioReconciliationRequest(
+                    portfolio_id=lusid.models.ResourceId(scope, portfolio_code),
+                    effective_at=datetime(year=2020, month=1, day=5, tzinfo=pytz.UTC).isoformat()
+                )
+            ))
+        reconciliation = display_reconciliation(response)
+        # end::reconcile-holdings[]
+        self.write_to_test_output(reconciliation, "reconciliation.csv")
 
         # Explicitly set holdings
 
@@ -901,6 +918,8 @@ class IBOR(unittest.TestCase):
         # end::set-holdings[]
 
         portfolios_api.delete_portfolio(scope, portfolio_code)
+        portfolios_api.delete_portfolio(scope, portfolio_code_with_shk)
+        portfolios_api.delete_portfolio(scope, new_portfolio_code)
 
         # tag::delete-instruments[]
         for figi in instruments.loc[:, 'figi'].values:
