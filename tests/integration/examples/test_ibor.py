@@ -360,7 +360,7 @@ class IBOR(unittest.TestCase):
         # end::sub-holding-key-domain-property[]
 
         # tag::create-sub-holding-key-property[]
-        response = api_factory.build(lusid.api.PropertyDefinitionsApi).create_property_definition(
+        response = property_definitions_api.create_property_definition(
             create_property_definition_request=lusid.models.CreatePropertyDefinitionRequest(
                 domain=domain,
                 scope=scope,
@@ -448,7 +448,7 @@ class IBOR(unittest.TestCase):
                     ))
 
         transaction_portfolios_api.upsert_transactions(
-            scope=scope, code=portfolio_code_with_shk, transaction_request=transactions_request)
+            scope=scope, code=portfolio_code, transaction_request=transactions_request)
         # end::import-transactions[]
 
         # tag::import-transactions-shk[]
@@ -470,7 +470,7 @@ class IBOR(unittest.TestCase):
                     transaction_price=lusid.models.TransactionPrice(price=txn["price"], type="Price"),
                     total_consideration=lusid.models.CurrencyAndAmount(
                         amount=txn["net_money"], currency=txn["currency"]),
-                    properties={ # <1>
+                    properties={  # <1>
                         strategy_property_key: lusid.PerpetualProperty(
                             key=strategy_property_key,
                             value=lusid.PropertyValue(label_value=txn["strategy"]))
@@ -478,7 +478,7 @@ class IBOR(unittest.TestCase):
                 ))
 
         transaction_portfolios_api.upsert_transactions(
-            scope=scope, code=portfolio_code, transaction_request=transactions_request)
+            scope=scope, code=portfolio_code_with_shk, transaction_request=transactions_request)
         # end::import-transactions-shk[]
 
         # tag::format-transactions[]
@@ -584,6 +584,30 @@ class IBOR(unittest.TestCase):
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-positions[]
         self.write_to_test_output(holdings, "holdings_positions.csv")
+        self.assertEqual(holdings.shape[0], 3)
+        self.assertAlmostEqual(holdings[holdings["Instrument"] == "Amazon_Nasdaq_AMZN"]["Units"].values[0], 100.0, 3)
+
+        # tag::format-holdings[]
+        def display_holdings_shk_summary(response):
+            return pd.DataFrame([{
+                "Instrument": value.properties["Instrument/default/Name"].value.label_value,
+                "SHK": list(value.sub_holding_keys.values())[0].value.label_value,
+                "Amount": value.cost.amount,
+                "Units": value.units,
+                "Type": value.holding_type
+            } for value in response.values])
+        # end::format-holdings[]
+
+        # tag::get-holdings-position-shk[]
+        holding_response = transaction_portfolios_api.get_holdings(
+            scope=scope,
+            code=portfolio_code_with_shk,
+            # filter="holdingType eq 'P'",
+            property_keys=["Instrument/default/Name"]
+        )
+        holdings = display_holdings_shk_summary(holding_response)
+        # end::get-holdings-positions-shk[]
+        self.write_to_test_output(holdings, "holdings_positions_shk.csv")
         self.assertEqual(holdings.shape[0], 3)
         self.assertAlmostEqual(holdings[holdings["Instrument"] == "Amazon_Nasdaq_AMZN"]["Units"].values[0], 100.0, 3)
 
