@@ -357,14 +357,10 @@ class IBOR(unittest.TestCase):
         code = "strategy"
         # end::sub-holding-key-property[]
 
-        # tag::sub-holding-key-domain-property[]
-        domain = "Transaction"
-        # end::sub-holding-key-domain-property[]
-
         # tag::create-sub-holding-key-property[]
         response = property_definitions_api.create_property_definition(
             create_property_definition_request=lusid.models.CreatePropertyDefinitionRequest(
-                domain=domain,
+                domain="Transaction",
                 scope=scope,
                 code=code,
                 display_name="Investment strategy",
@@ -379,7 +375,7 @@ class IBOR(unittest.TestCase):
         # end::portfolio-code-shk[]
 
         # tag::portfolio-with-shk-property-key[]
-        strategy_property_key = f"{domain}/{scope}/{code}"
+        strategy_property_key = f"Transaction/{scope}/{code}"
         # end::portfolio-with-shk-property-key[]
 
         # tag::create-portfolio-with-shk[]
@@ -740,18 +736,16 @@ class IBOR(unittest.TestCase):
         # tag::get-valuation-total-shk[]
         metrics = [
             (strategy_property_key, "Value"),
-            ("Instrument/default/Name", "Value"),
-            ("Holding/default/Units", "Sum"),
             ("Holding/default/PV", "Sum"),
             ("Holding/default/PV", "Proportion")
         ]
-        group_by = ["Instrument/default/Name", strategy_property_key]
+        group_by = [strategy_property_key]
 
         effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
         response = compute_valuation_with_default_recipe(effective_at, effective_at, metrics, group_by)
         valuation = pd.DataFrame(response)
         # end::get-valuation-total-shk[]
-        valuation = valuation.rename({strategy_property_key: f"{domain}/{initial_scope}/{code}"}, axis=1)
+        valuation = valuation.rename({strategy_property_key: f"Transaction/{initial_scope}/{code}"}, axis=1)
         self.write_to_test_output(valuation, "valuation-shk.csv")
 
         portfolio_code = initial_portfolio_code
