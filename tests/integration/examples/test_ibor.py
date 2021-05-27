@@ -587,7 +587,7 @@ class IBOR(unittest.TestCase):
         self.assertEqual(holdings.shape[0], 3)
         self.assertAlmostEqual(holdings[holdings["Instrument"] == "Amazon_Nasdaq_AMZN"]["Units"].values[0], 100.0, 3)
 
-        # tag::format-holdings[]
+        # tag::format-holdings-shk[]
         def display_holdings_shk_summary(response):
             return pd.DataFrame([{
                 "Instrument": value.properties["Instrument/default/Name"].value.label_value,
@@ -596,7 +596,7 @@ class IBOR(unittest.TestCase):
                 "Units": value.units,
                 "Type": value.holding_type
             } for value in response.values])
-        # end::format-holdings[]
+        # end::format-holdings-shk[]
 
         # tag::get-holdings-position-shk[]
         holding_response = transaction_portfolios_api.get_holdings(
