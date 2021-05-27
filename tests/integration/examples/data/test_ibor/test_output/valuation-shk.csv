@@ -1,0 +1,9 @@
+Transaction/Developer-IBOR-Tutorial/strategy,Instrument/default/Name,Sum(Holding/default/Units),Sum(Holding/default/PV),Proportion(Holding/default/PV)
+tech,USD,314049.5,314049.5,0.2716373952868826
+nasdaq-tracker,USD,309873.5,309873.5,0.26802536036016555
+tech,Amazon_Nasdaq_AMZN,75.0,252151.5,0.21809866494829755
+nasdaq-tracker,Amazon_Nasdaq_AMZN,25.0,84050.5,0.07269955498276585
+tech,Apple_Nasdaq_AAPL,150.0,20025.0,0.01732064162057199
+nasdaq-tracker,Apple_Nasdaq_AAPL,150.0,20025.0,0.01732064162057199
+tech,CoinBase_Nasdaq_COIN,100.0,31192.0,0.02697954823614889
+nasdaq-tracker,CoinBase_Nasdaq_COIN,400.0,124768.0,0.10791819294459556

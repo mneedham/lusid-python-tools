@@ -257,6 +257,7 @@ class IBOR(unittest.TestCase):
         # tag::scope[]
         scope = "Developer-IBOR-Tutorial"
         # end::scope[]
+        initial_scope = scope
         now = datetime.now().strftime('%Y-%m-%d-%H_%M_%S')
         scope = f"Developer-IBOR-Tutorial-{now}"
 
@@ -735,6 +736,26 @@ class IBOR(unittest.TestCase):
         self.write_to_test_output(valuation, "valuation-20210422.csv")
         self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.5467, 3)
 
+        portfolio_code = portfolio_code_with_shk
+        # tag::get-valuation-total-shk[]
+        metrics = [
+            (strategy_property_key, "Value"),
+            ("Instrument/default/Name", "Value"),
+            ("Holding/default/Units", "Sum"),
+            ("Holding/default/PV", "Sum"),
+            ("Holding/default/PV", "Proportion")
+        ]
+        group_by = ["Instrument/default/Name", strategy_property_key]
+
+        effective_at = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
+        response = compute_valuation_with_default_recipe(effective_at, effective_at, metrics, group_by)
+        valuation = pd.DataFrame(response)
+        # end::get-valuation-total-shk[]
+        valuation = valuation.rename({strategy_property_key: f"{domain}/{initial_scope}/{code}"}, axis=1)
+        self.write_to_test_output(valuation, "valuation-shk.csv")
+
+        portfolio_code = initial_portfolio_code
+
         # Explicitly set holdings
 
         # tag::holdings-file[]
@@ -756,6 +777,11 @@ class IBOR(unittest.TestCase):
             lusid.models.HoldingAdjustment(
                 instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
                 instrument_uid=holding["figi"],
+                sub_holding_keys={
+                    strategy_property_key: lusid.PerpetualProperty(
+                        key=strategy_property_key,
+                        value=lusid.PropertyValue(label_value=holding["strategy"]))
+                },
                 tax_lots=[lusid.models.TargetTaxLot(units=holding["units"])])
             for _, holding in holdings.iterrows()
         ]
@@ -772,6 +798,11 @@ class IBOR(unittest.TestCase):
             lusid.models.HoldingAdjustment(
                 instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
                 instrument_uid=holding["figi"],
+                sub_holding_keys={
+                    strategy_property_key: lusid.PerpetualProperty(
+                        key=strategy_property_key,
+                        value=lusid.PropertyValue(label_value=holding["strategy"]))
+                },
                 tax_lots=[lusid.models.TargetTaxLot(units=holding["units"])])
             for _, holding in holdings.iterrows()
         ]
