@@ -1,0 +1,5 @@
+Instrument,SHK,Amount,Units,Type
+USD,tech,404856.0,404856.0,B
+USD,nasdaq-tracker,452428.0,452428.0,B
+Amazon_Nasdaq_AMZN,tech,95144.0,50.0,P
+Amazon_Nasdaq_AMZN,nasdaq-tracker,47572.0,25.0,P
