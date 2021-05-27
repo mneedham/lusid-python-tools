@@ -3,6 +3,7 @@ import unittest
 import uuid
 from pathlib import Path
 import tests.integration.examples.lusid_utils as lusid_utils
+import tests.integration.examples.holdings as hold
 
 # tag::imports-lusid[]
 import lusid
@@ -526,61 +527,36 @@ class IBOR(unittest.TestCase):
             } for value in response.values])
         # end::format-holdings[]
 
+        holding_response = hold.funds_loaded(transaction_portfolios_api, scope, portfolio_code)
         # tag::get-holdings-funds-loaded[]
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code,
-            property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=1, day=1, hour=1, tzinfo=pytz.UTC),
-        )
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-funds-loaded[]
         self.write_to_test_output(holdings, "holdings_funds_loaded.csv")
         self.assertEqual(holdings.shape[0], 1)
 
+        holding_response = hold.day1_trading(transaction_portfolios_api, scope, portfolio_code)
         # tag::get-holdings-first-day-trading[]
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code,
-            property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=1, day=2, hour=1, tzinfo=pytz.UTC),
-        )
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-first-day-trading[]
         self.write_to_test_output(holdings, "holdings_first_day_trading.csv")
         self.assertEqual(holdings.shape[0], 2)
 
+        holding_response = hold.day2_trading(transaction_portfolios_api, scope, portfolio_code)
         # tag::get-holdings-second-day-trading[]
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code,
-            property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=1, day=3, hour=1, tzinfo=pytz.UTC),
-        )
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-second-day-trading[]
         self.write_to_test_output(holdings, "holdings_second_day_trading.csv")
         self.assertEqual(holdings.shape[0], 4)
 
+        holding_response = hold.latest_day_trading(transaction_portfolios_api, scope, portfolio_code)
         # tag::get-holdings-today[]
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code,
-            property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=2, day=1, hour=1, tzinfo=pytz.UTC),
-        )
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-today[]
         self.write_to_test_output(holdings, "holdings_today.csv")
         self.assertEqual(holdings.shape[0], 4)
 
+        holding_response = hold.positions(transaction_portfolios_api, scope, portfolio_code)
         # tag::get-holdings-positions[]
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code,
-            filter="holdingType eq 'P'",
-            property_keys=["Instrument/default/Name"]
-        )
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-positions[]
         self.write_to_test_output(holdings, "holdings_positions.csv")
@@ -598,61 +574,36 @@ class IBOR(unittest.TestCase):
             } for value in response.values])
         # end::format-holdings-shk[]
 
+        holding_response = hold.funds_loaded(transaction_portfolios_api, scope, portfolio_code_with_shk)
         # tag::get-holdings-funds-loaded-shk[]
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code_with_shk,
-            property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=1, day=1, hour=1, tzinfo=pytz.UTC),
-        )
         holdings = display_holdings_shk_summary(holding_response)
         # end::get-holdings-funds-loaded-shk[]
         self.write_to_test_output(holdings, "holdings_funds_loaded_shk.csv")
         self.assertEqual(holdings.shape[0], 2)
 
+        holding_response = hold.day1_trading(transaction_portfolios_api, scope, portfolio_code_with_shk)
         # tag::get-holdings-first-day-trading-shk[]
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code_with_shk,
-            property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=1, day=2, hour=1, tzinfo=pytz.UTC),
-        )
         holdings = display_holdings_shk_summary(holding_response)
         # end::get-holdings-first-day-trading-shk[]
         self.write_to_test_output(holdings, "holdings_first_day_trading_shk.csv")
         self.assertEqual(holdings.shape[0], 4)
 
+        holding_response = hold.day2_trading(transaction_portfolios_api, scope, portfolio_code_with_shk)
         # tag::get-holdings-second-day-trading-shk[]
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code_with_shk,
-            property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=1, day=3, hour=1, tzinfo=pytz.UTC),
-        )
         holdings = display_holdings_shk_summary(holding_response)
         # end::get-holdings-second-day-trading-shk[]
         self.write_to_test_output(holdings, "holdings_second_day_trading_shk.csv")
         self.assertEqual(holdings.shape[0], 8)
 
+        holding_response = hold.latest_day_trading(transaction_portfolios_api, scope, portfolio_code_with_shk)
         # tag::get-holdings-today-shk[]
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code_with_shk,
-            property_keys=["Instrument/default/Name"],
-            effective_at=datetime(year=2020, month=2, day=1, hour=1, tzinfo=pytz.UTC),
-        )
         holdings = display_holdings_shk_summary(holding_response)
         # end::get-holdings-today-shk[]
         self.write_to_test_output(holdings, "holdings_today_shk.csv")
         self.assertEqual(holdings.shape[0], 8)
 
+        holding_response = hold.positions(transaction_portfolios_api, scope, portfolio_code_with_shk)
         # tag::get-holdings-positions-shk[]
-        holding_response = transaction_portfolios_api.get_holdings(
-            scope=scope,
-            code=portfolio_code_with_shk,
-            filter="holdingType eq 'P'",
-            property_keys=["Instrument/default/Name"]
-        )
         holdings = display_holdings_shk_summary(holding_response)
         # end::get-holdings-positions-shk[]
         self.write_to_test_output(holdings, "holdings_positions_shk.csv")
