@@ -763,12 +763,15 @@ class IBOR(unittest.TestCase):
             scope=scope,
             code=corporate_action_source_code,
             display_name="Corporate Actions",
-            description="Corporate Actions source for sample notebook",
         )
         corporate_action_sources_api.create_corporate_action_source(
             create_corporate_action_source_request=source_request
         )
         # end::create-corporate-action-source[]
+
+        # tag::corporate-action-created-at[]
+        created_date = datetime(year=2019, month=1, day=1, tzinfo=pytz.UTC).isoformat()
+        # end::corporate-action-created-at[]
 
         # tag::add-corporate-action-portfolio[]
         transaction_portfolios_api.upsert_portfolio_details(
@@ -776,7 +779,9 @@ class IBOR(unittest.TestCase):
             code=portfolio_code,
             effective_at=created_date,
             create_portfolio_details=lusid.models.CreatePortfolioDetails(
-                corporate_action_source_id=lusid.ResourceId(scope=scope, code=corporate_action_source_code)
+                corporate_action_source_id=lusid.ResourceId(
+                    scope=scope,
+                    code=corporate_action_source_code)
             ),
         )
         # end::add-corporate-action-portfolio[]
