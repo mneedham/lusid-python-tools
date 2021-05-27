@@ -611,6 +611,12 @@ class IBOR(unittest.TestCase):
         amazon = holdings[(holdings["Instrument"] == "Amazon_Nasdaq_AMZN") & (holdings["SHK"] == "tech")]
         self.assertAlmostEqual(amazon["Units"].values[0], 75.0, 3)
 
+        # Bit of hackery so that we use portfolio_code for both portfolios in the docs
+        # tag::portfolio-code-shk-override[]
+        portfolio_code = "Developer-IBOR-SHK-Tutorial"
+        # end::portfolio-code-shk-override[]
+        portfolio_code = initial_portfolio_code
+
         ##################
         # QUOTES
         ##################
