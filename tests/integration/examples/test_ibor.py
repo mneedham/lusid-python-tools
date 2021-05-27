@@ -620,7 +620,7 @@ class IBOR(unittest.TestCase):
         holdings = display_holdings_shk_summary(holding_response)
         # end::get-holdings-first-day-trading-shk[]
         self.write_to_test_output(holdings, "holdings_first_day_trading_shk.csv")
-        # self.assertEqual(holdings.shape[0], 2)
+        self.assertEqual(holdings.shape[0], 4)
 
         # tag::get-holdings-second-day-trading-shk[]
         holding_response = transaction_portfolios_api.get_holdings(
@@ -632,7 +632,7 @@ class IBOR(unittest.TestCase):
         holdings = display_holdings_shk_summary(holding_response)
         # end::get-holdings-second-day-trading-shk[]
         self.write_to_test_output(holdings, "holdings_second_day_trading_shk.csv")
-        # self.assertEqual(holdings.shape[0], 4)
+        self.assertEqual(holdings.shape[0], 8)
 
         # tag::get-holdings-today-shk[]
         holding_response = transaction_portfolios_api.get_holdings(
@@ -644,7 +644,7 @@ class IBOR(unittest.TestCase):
         holdings = display_holdings_shk_summary(holding_response)
         # end::get-holdings-today-shk[]
         self.write_to_test_output(holdings, "holdings_today_shk.csv")
-        # self.assertEqual(holdings.shape[0], 4)
+        self.assertEqual(holdings.shape[0], 8)
 
         # tag::get-holdings-positions-shk[]
         holding_response = transaction_portfolios_api.get_holdings(
@@ -656,8 +656,9 @@ class IBOR(unittest.TestCase):
         holdings = display_holdings_shk_summary(holding_response)
         # end::get-holdings-positions-shk[]
         self.write_to_test_output(holdings, "holdings_positions_shk.csv")
-        # self.assertEqual(holdings.shape[0], 3)
-        # self.assertAlmostEqual(holdings[holdings["Instrument"] == "Amazon_Nasdaq_AMZN"]["Units"].values[0], 100.0, 3)
+        self.assertEqual(holdings.shape[0], 6)
+        amazon = holdings[(holdings["Instrument"] == "Amazon_Nasdaq_AMZN") & (holdings["SHK"] == "tech")]
+        self.assertAlmostEqual(amazon["Units"].values[0], 75.0, 3)
 
         ##################
         # QUOTES
