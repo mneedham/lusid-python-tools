@@ -832,8 +832,10 @@ class IBOR(unittest.TestCase):
                 "Instrument": value.instrument_properties[0].value.label_value,
                 "Left Units": value.left_units,
                 "Right Units": value.right_units,
+                "Diff Units": value.difference_units,
                 "Left Cost": value.left_cost.amount,
                 "Right Cost": value.right_cost.amount,
+                "Diff Cost": value.difference_cost.amount
 
             } for value in response.values])
         # end::format-reconciliation[]
@@ -855,8 +857,12 @@ class IBOR(unittest.TestCase):
                     effective_at=datetime(year=2020, month=1, day=5, tzinfo=pytz.UTC).isoformat()
                 )
             ))
-        reconciliation = display_reconciliation(response)
         # end::reconcile-holdings[]
+
+        # tag::format-reconcile-holdings[]
+        reconciliation = display_reconciliation(response)
+        # end::format-reconcile-holdings[]
+
         self.write_to_test_output(reconciliation, "reconciliation.csv")
 
         # Explicitly set holdings
