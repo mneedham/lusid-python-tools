@@ -750,6 +750,93 @@ class IBOR(unittest.TestCase):
 
         portfolio_code = initial_portfolio_code
 
+        # tag::corporate-action-source-code[]
+        corporate_action_source_code = "Corporate-Actions-Source"
+        # end::corporate-action-source-code[]
+
+        # tag::corporate-action-source-api[]
+        corporate_action_sources_api = api_factory.build(lusid.api.CorporateActionSourcesApi)
+        # end::corporate-action-source-api[]
+
+        # tag::create-corporate-action-source[]
+        source_request = lusid.models.CreateCorporateActionSourceRequest(
+            scope=scope,
+            code=corporate_action_source_code,
+            display_name="Corporate Actions",
+            description="Corporate Actions source for sample notebook",
+        )
+        corporate_action_sources_api.create_corporate_action_source(
+            create_corporate_action_source_request=source_request
+        )
+        # end::create-corporate-action-source[]
+
+        # tag::add-corporate-action-portfolio[]
+        transaction_portfolios_api.upsert_portfolio_details(
+            scope=scope,
+            code=portfolio_code,
+            effective_at=created_date,
+            create_portfolio_details=lusid.models.CreatePortfolioDetails(
+                corporate_action_source_id=lusid.ResourceId(scope=scope, code=corporate_action_source_code)
+            ),
+        )
+        # end::add-corporate-action-portfolio[]
+
+        # tag::create-transition[]
+        request = lusid.models.CorporateActionTransitionRequest(
+            input_transition=lusid.models.CorporateActionTransitionComponentRequest(
+                instrument_identifiers={
+                    "Instrument/default/Figi": "BBG00ZGF7HS6"
+                },
+                units_factor=1,
+                cost_factor=1,
+            ),
+            output_transitions=[lusid.models.CorporateActionTransitionComponentRequest(
+                instrument_identifiers={
+                    "Instrument/default/Currency": "USD"
+                },
+                units_factor=10,
+                cost_factor=1,
+            )]
+        )
+        # end::create-transition[]
+
+        # tag::upsert-transition[]
+        announcement_date = datetime(year=2020, month=2, day=1, tzinfo=pytz.UTC).isoformat()
+        ex_date = datetime(year=2020, month=2, day=2, tzinfo=pytz.UTC).isoformat()
+        record_date = datetime(year=2020, month=2, day=3, tzinfo=pytz.UTC).isoformat()
+        payment_date = datetime(year=2020, month=2, day=4, tzinfo=pytz.UTC).isoformat()
+
+        dividend_coinbase = lusid.models.UpsertCorporateActionRequest(
+                corporate_action_code="ca001",
+                announcement_date=announcement_date,
+                ex_date=ex_date,
+                record_date=record_date,
+                payment_date=payment_date,
+                transitions=[request],
+            )
+
+        corporate_action_sources_api.batch_upsert_corporate_actions(
+            scope=scope, code=corporate_action_source_code,
+            upsert_corporate_action_request=[dividend_coinbase]
+        )
+        # end::upsert-transition[]
+
+        holding_response = transaction_portfolios_api.get_holdings(
+            scope=scope,
+            code=portfolio_code,
+            property_keys=["Instrument/default/Name"],
+            effective_at=datetime(year=2020, month=1, day=4, hour=1, tzinfo=pytz.UTC),
+        )
+        print(display_holdings_summary(holding_response))
+
+        holding_response = transaction_portfolios_api.get_holdings(
+            scope=scope,
+            code=portfolio_code,
+            property_keys=["Instrument/default/Name"],
+            effective_at=datetime(year=2020, month=2, day=5, hour=1, tzinfo=pytz.UTC),
+        )
+        print(display_holdings_summary(holding_response))
+
         # Explicitly set holdings
 
         # tag::holdings-file[]
