@@ -750,6 +750,110 @@ class IBOR(unittest.TestCase):
 
         portfolio_code = initial_portfolio_code
 
+        # tag::format-reconciliation[]
+        def display_reconciliation(response):
+            return pd.DataFrame([{
+                "Instrument": value.instrument_properties[0].value.label_value,
+                "Left Units": value.left_units,
+                "Right Units": value.right_units,
+                "Diff Units": value.difference_units,
+                "Left Cost": value.left_cost.amount,
+                "Right Cost": value.right_cost.amount,
+                "Diff Cost": value.difference_cost.amount
+
+            } for value in response.values])
+        # end::format-reconciliation[]
+
+        # tag::reconciliation-api[]
+        reconciliations_api = api_factory.build(lusid.ReconciliationsApi)
+        # end::reconciliation-api[]
+
+        # tag::reconcile-holdings[]
+        response = reconciliations_api.reconcile_holdings(
+            portfolios_reconciliation_request=lusid.models.PortfoliosReconciliationRequest(
+                instrument_property_keys=["Instrument/default/Name"],
+                left=lusid.models.PortfolioReconciliationRequest(
+                    portfolio_id=lusid.models.ResourceId(scope, portfolio_code),
+                    effective_at=datetime(year=2020, month=1, day=2, tzinfo=pytz.UTC).isoformat()
+                ),
+                right=lusid.models.PortfolioReconciliationRequest(
+                    portfolio_id=lusid.models.ResourceId(scope, portfolio_code),
+                    effective_at=datetime(year=2020, month=1, day=5, tzinfo=pytz.UTC).isoformat()
+                )
+            ))
+        # end::reconcile-holdings[]
+
+        # tag::format-reconcile-holdings[]
+        reconciliation = display_reconciliation(response)
+        # end::format-reconcile-holdings[]
+        self.write_to_test_output(reconciliation, "reconciliation.csv")
+
+        # tag::format-reconciliation-valuation[]
+        def display_reconciliation_valuation(response):
+            diff = pd.DataFrame([{
+                "Instrument": value["Instrument/default/Name"],
+                "Diff PV": value["Sum(Holding/default/PV)"]
+            } for value in response.diff])
+
+            left = pd.DataFrame([{
+                "Instrument": value["Instrument/default/Name"],
+                "Left PV": value["Sum(Holding/default/PV)"]
+            } for value in response.left.data])
+
+            right = pd.DataFrame([{
+                "Instrument": value["Instrument/default/Name"],
+                "Right PV": value["Sum(Holding/default/PV)"]
+            } for value in response.right.data])
+
+            return left.merge(right, on=["Instrument"]).merge(diff, on=["Instrument"])
+        # end::format-reconciliation-valuation[]
+
+        # tag::reconcile-parameters[]
+        date1 = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
+        date2 = datetime(year=2021, month=4, day=23, tzinfo=pytz.UTC)
+
+        metrics = [
+            ("Instrument/default/Name", "Value"),
+            ("Holding/default/PV", "Sum"),
+        ]
+        group_by = ["Instrument/default/Name"]
+        # end::reconcile-parameters[]
+
+        # tag::reconcile-valuation[]
+        response = reconciliations_api.reconcile_valuation(
+            valuations_reconciliation_request=lusid.models.ValuationsReconciliationRequest(
+                left=lusid.models.ValuationRequest(
+                    recipe_id=lusid.models.ResourceId(scope=scope, code="default"),
+                    metrics=[lusid.models.AggregateSpec(key, op) for key, op in metrics],
+                    group_by=group_by,
+                    valuation_schedule=lusid.models.ValuationSchedule(effective_at=date1),
+                    portfolio_entity_ids=[lusid.models.PortfolioEntityId(
+                        scope=scope,
+                        code=portfolio_code,
+                        portfolio_entity_type="SinglePortfolio"
+                    )]
+                ),
+                right=lusid.models.ValuationRequest(
+                    recipe_id=lusid.models.ResourceId(scope=scope, code="default"),
+                    metrics=[lusid.models.AggregateSpec(key, op) for key, op in metrics],
+                    group_by=group_by,
+                    valuation_schedule=lusid.models.ValuationSchedule(effective_at=date2),
+                    portfolio_entity_ids=[lusid.models.PortfolioEntityId(
+                        scope=scope,
+                        code=portfolio_code,
+                        portfolio_entity_type="SinglePortfolio"
+                    )]
+                )
+            ))
+        # end::reconcile-valuation[]
+
+        # tag::format-reconcile-valuation[]
+        reconciled_valuation = display_reconciliation_valuation(response)
+        # end::format-reconcile-valuation[]
+        self.write_to_test_output(reconciled_valuation, "reconciliation_valuation.csv")
+
+        # CORPORATE ACTION SOURCE
+
         # tag::corporate-action-source-code[]
         corporate_action_source_code = "Corporate-Actions-Source"
         # end::corporate-action-source-code[]
@@ -825,108 +929,6 @@ class IBOR(unittest.TestCase):
             upsert_corporate_action_request=[dividend_coinbase]
         )
         # end::upsert-transition[]
-
-        # tag::format-reconciliation[]
-        def display_reconciliation(response):
-            return pd.DataFrame([{
-                "Instrument": value.instrument_properties[0].value.label_value,
-                "Left Units": value.left_units,
-                "Right Units": value.right_units,
-                "Diff Units": value.difference_units,
-                "Left Cost": value.left_cost.amount,
-                "Right Cost": value.right_cost.amount,
-                "Diff Cost": value.difference_cost.amount
-
-            } for value in response.values])
-        # end::format-reconciliation[]
-
-        # tag::reconciliation-api[]
-        reconciliations_api = api_factory.build(lusid.ReconciliationsApi)
-        # end::reconciliation-api[]
-
-        # tag::reconcile-holdings[]
-        response = reconciliations_api.reconcile_holdings(
-            portfolios_reconciliation_request=lusid.models.PortfoliosReconciliationRequest(
-                instrument_property_keys=["Instrument/default/Name"],
-                left=lusid.models.PortfolioReconciliationRequest(
-                    portfolio_id=lusid.models.ResourceId(scope, portfolio_code),
-                    effective_at=datetime(year=2020, month=1, day=2, tzinfo=pytz.UTC).isoformat()
-                ),
-                right=lusid.models.PortfolioReconciliationRequest(
-                    portfolio_id=lusid.models.ResourceId(scope, portfolio_code),
-                    effective_at=datetime(year=2020, month=1, day=5, tzinfo=pytz.UTC).isoformat()
-                )
-            ))
-        # end::reconcile-holdings[]
-
-        # tag::format-reconcile-holdings[]
-        reconciliation = display_reconciliation(response)
-        # end::format-reconcile-holdings[]
-        self.write_to_test_output(reconciliation, "reconciliation.csv")
-
-        # tag::format-reconciliation[]
-        def display_reconciliation_valuation(response):
-            diff = pd.DataFrame([{
-                "Instrument": value["Instrument/default/Name"],
-                "Diff PV": value["Sum(Holding/default/PV)"]
-            } for value in response.diff])
-
-            left = pd.DataFrame([{
-                "Instrument": value["Instrument/default/Name"],
-                "Left PV": value["Sum(Holding/default/PV)"]
-            } for value in response.left.data])
-
-            right = pd.DataFrame([{
-                "Instrument": value["Instrument/default/Name"],
-                "Right PV": value["Sum(Holding/default/PV)"]
-            } for value in response.right.data])
-
-            return left.merge(right, on=["Instrument"]).merge(diff, on=["Instrument"])
-        # end::format-reconciliation[]
-
-        # tag::reconcile-parameters[]
-        date1 = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
-        date2 = datetime(year=2021, month=4, day=23, tzinfo=pytz.UTC)
-
-        metrics = [
-            ("Instrument/default/Name", "Value"),
-            ("Holding/default/PV", "Sum"),
-        ]
-        group_by = ["Instrument/default/Name"]
-        # end::reconcile-parameters[]
-
-        # tag::reconcile-valuation[]
-        response = reconciliations_api.reconcile_valuation(
-            valuations_reconciliation_request=lusid.models.ValuationsReconciliationRequest(
-                left=lusid.models.ValuationRequest(
-                    recipe_id=lusid.models.ResourceId(scope=scope, code="default"),
-                    metrics=[lusid.models.AggregateSpec(key, op) for key, op in metrics],
-                    group_by=group_by,
-                    valuation_schedule=lusid.models.ValuationSchedule(effective_at=date1),
-                    portfolio_entity_ids=[lusid.models.PortfolioEntityId(
-                        scope=scope,
-                        code=portfolio_code,
-                        portfolio_entity_type="SinglePortfolio"
-                    )]
-                ),
-                right=lusid.models.ValuationRequest(
-                    recipe_id=lusid.models.ResourceId(scope=scope, code="default"),
-                    metrics=[lusid.models.AggregateSpec(key, op) for key, op in metrics],
-                    group_by=group_by,
-                    valuation_schedule=lusid.models.ValuationSchedule(effective_at=date2),
-                    portfolio_entity_ids=[lusid.models.PortfolioEntityId(
-                        scope=scope,
-                        code=portfolio_code,
-                        portfolio_entity_type="SinglePortfolio"
-                    )]
-                )
-            ))
-        # end::reconcile-valuation[]
-
-        # tag::format-reconcile-valuation[]
-        reconciled_valuation = display_reconciliation_valuation(response)
-        # end::format-reconcile-valuation[]
-        self.write_to_test_output(reconciled_valuation, "reconciliation_valuation.csv")
 
         # Explicitly set holdings
 
