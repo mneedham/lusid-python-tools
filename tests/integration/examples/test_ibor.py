@@ -865,6 +865,38 @@ class IBOR(unittest.TestCase):
 
         self.write_to_test_output(reconciliation, "reconciliation.csv")
 
+        # tag::reconcile-valuation[]
+        date1 = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
+        date2 = datetime(year=2021, month=4, day=23, tzinfo=pytz.UTC)
+
+        response = reconciliations_api.reconcile_valuation(
+            valuations_reconciliation_request=lusid.models.ValuationsReconciliationRequest(
+                left=lusid.models.ValuationRequest(
+                    recipe_id=lusid.models.ResourceId(scope=scope, code="default"),
+                    metrics=[lusid.models.AggregateSpec(key, op) for key, op in metrics],
+                    group_by=group_by,
+                    valuation_schedule=lusid.models.ValuationSchedule(effective_at=date1),
+                    portfolio_entity_ids=[lusid.models.PortfolioEntityId(
+                        scope=scope,
+                        code=portfolio_code,
+                        portfolio_entity_type="SinglePortfolio"
+                    )]
+                ),
+                right=lusid.models.ValuationRequest(
+                    recipe_id=lusid.models.ResourceId(scope=scope, code="default"),
+                    metrics=[lusid.models.AggregateSpec(key, op) for key, op in metrics],
+                    group_by=group_by,
+                    valuation_schedule=lusid.models.ValuationSchedule(effective_at=date2),
+                    portfolio_entity_ids=[lusid.models.PortfolioEntityId(
+                        scope=scope,
+                        code=portfolio_code,
+                        portfolio_entity_type="SinglePortfolio"
+                    )]
+                )
+            ))
+        # end::reconcile-valuation[]
+        print(response)
+
         # Explicitly set holdings
 
         # tag::holdings-file[]
