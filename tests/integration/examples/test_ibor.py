@@ -862,13 +862,40 @@ class IBOR(unittest.TestCase):
         # tag::format-reconcile-holdings[]
         reconciliation = display_reconciliation(response)
         # end::format-reconcile-holdings[]
-
         self.write_to_test_output(reconciliation, "reconciliation.csv")
 
-        # tag::reconcile-valuation[]
+        # tag::format-reconciliation[]
+        def display_reconciliation_valuation(response):
+            diff = pd.DataFrame([{
+                "Instrument": value["Instrument/default/Name"],
+                "Diff PV": value["Sum(Holding/default/PV)"]
+            } for value in response.diff])
+
+            left = pd.DataFrame([{
+                "Instrument": value["Instrument/default/Name"],
+                "Left PV": value["Sum(Holding/default/PV)"]
+            } for value in response.left.data])
+
+            right = pd.DataFrame([{
+                "Instrument": value["Instrument/default/Name"],
+                "Right PV": value["Sum(Holding/default/PV)"]
+            } for value in response.right.data])
+
+            return left.merge(right, on=["Instrument"]).merge(diff, on=["Instrument"])
+        # end::format-reconciliation[]
+
+        # tag::reconcile-parameters[]
         date1 = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
         date2 = datetime(year=2021, month=4, day=23, tzinfo=pytz.UTC)
 
+        metrics = [
+            ("Instrument/default/Name", "Value"),
+            ("Holding/default/PV", "Sum"),
+        ]
+        group_by = ["Instrument/default/Name"]
+        # end::reconcile-parameters[]
+
+        # tag::reconcile-valuation[]
         response = reconciliations_api.reconcile_valuation(
             valuations_reconciliation_request=lusid.models.ValuationsReconciliationRequest(
                 left=lusid.models.ValuationRequest(
@@ -895,7 +922,11 @@ class IBOR(unittest.TestCase):
                 )
             ))
         # end::reconcile-valuation[]
-        print(response)
+
+        # tag::format-reconcile-valuation[]
+        reconciled_valuation = display_reconciliation_valuation(response)
+        # end::format-reconcile-valuation[]
+        self.write_to_test_output(reconciled_valuation, "reconciliation_valuation.csv")
 
         # Explicitly set holdings
 
