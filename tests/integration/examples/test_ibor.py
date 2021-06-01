@@ -436,7 +436,9 @@ class IBOR(unittest.TestCase):
                 },
                 tax_lots=[lusid.models.TargetTaxLot(
                     units=holding["units"],
-                    cost=lusid.models.CurrencyAndAmount(amount=holding["net_money"], currency=holding["currency"]),
+                    cost=lusid.models.CurrencyAndAmount(
+                        amount=holding["net_money"],
+                        currency=holding["currency"]),
                 )])
             for _, holding in holdings.iterrows()
         ]
@@ -456,7 +458,9 @@ class IBOR(unittest.TestCase):
                 instrument_uid=holding["figi"],
                 tax_lots=[lusid.models.TargetTaxLot(
                     units=holding["units"],
-                    cost=lusid.models.CurrencyAndAmount(amount=holding["net_money"], currency=holding["currency"]),
+                    cost=lusid.models.CurrencyAndAmount(
+                        amount=holding["net_money"],
+                        currency=holding["currency"]),
                 )])
             for _, holding in holdings.iterrows()
         ]
@@ -581,6 +585,13 @@ class IBOR(unittest.TestCase):
                 "Type": value.holding_type
             } for value in response.values])
         # end::format-holdings[]
+
+        holding_response = hold.holdings_set(transaction_portfolios_api, scope, portfolio_code)
+        # tag::get-holdings-set-holdings[]
+        holdings = display_holdings_summary(holding_response)
+        # end::get-holdings-set-holdings[]
+        self.write_to_test_output(holdings, "holdings_set_holdings.csv")
+        self.assertEqual(holdings.shape[0], 4)
 
         holding_response = hold.funds_loaded(transaction_portfolios_api, scope, portfolio_code)
         # tag::get-holdings-funds-loaded[]

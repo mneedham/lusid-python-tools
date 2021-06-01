@@ -2,6 +2,18 @@ from datetime import datetime
 import pytz
 
 
+def holdings_set(transaction_portfolios_api, scope, portfolio_code):
+    # tag::get-holdings-set-holdings[]
+    holding_response = transaction_portfolios_api.get_holdings(
+        scope=scope,
+        code=portfolio_code,
+        property_keys=["Instrument/default/Name"],
+        effective_at=datetime(year=2019, month=12, day=31, hour=1, tzinfo=pytz.UTC),
+    )
+    # end::get-holdings-set-holdings[]
+    return holding_response
+
+
 def funds_loaded(transaction_portfolios_api, scope, portfolio_code):
     # tag::get-holdings-funds-loaded[]
     holding_response = transaction_portfolios_api.get_holdings(
