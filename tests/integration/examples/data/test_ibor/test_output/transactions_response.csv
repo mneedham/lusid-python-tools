@@ -1,10 +1,10 @@
-Transaction ID,Instrument,Amount,Units,Type
+Transaction ID,Instrument,Units,Amount,Type
 tx_00001,USD,500000.0,500000.0,FundsIn
 tx_00002,USD,500000.0,500000.0,FundsIn
-tx_00003,Amazon_Nasdaq_AMZN,95144.0,50.0,Buy
-tx_00004,Amazon_Nasdaq_AMZN,47572.0,25.0,Buy
-tx_00005,Apple_Nasdaq_AAPL,11242.5,150.0,Buy
-tx_00006,Apple_Nasdaq_AAPL,11242.5,150.0,Buy
-tx_00007,CoinBase_Nasdaq_COIN,32828.0,100.0,Buy
-tx_00008,CoinBase_Nasdaq_COIN,131312.0,400.0,Buy
-tx_00009,Amazon_Nasdaq_AMZN,46736.0,25.0,Buy
+tx_00003,Amazon_Nasdaq_AMZN,50.0,95144.0,Buy
+tx_00004,Amazon_Nasdaq_AMZN,25.0,47572.0,Buy
+tx_00005,Apple_Nasdaq_AAPL,150.0,11242.5,Buy
+tx_00006,Apple_Nasdaq_AAPL,150.0,11242.5,Buy
+tx_00007,CoinBase_Nasdaq_COIN,100.0,32828.0,Buy
+tx_00008,CoinBase_Nasdaq_COIN,400.0,131312.0,Buy
+tx_00009,Amazon_Nasdaq_AMZN,25.0,46736.0,Buy

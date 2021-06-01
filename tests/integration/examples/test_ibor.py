@@ -546,8 +546,8 @@ class IBOR(unittest.TestCase):
             return pd.DataFrame([{
                 "Transaction ID": value.transaction_id,
                 "Instrument": value.properties["Instrument/default/Name"].value.label_value,
-                "Amount": value.total_consideration.amount,
                 "Units": value.units,
+                "Amount": value.total_consideration.amount,
                 "Type": value.type,
             } for value in response.values])
 
