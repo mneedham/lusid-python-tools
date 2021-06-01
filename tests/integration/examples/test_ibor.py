@@ -958,7 +958,7 @@ class IBOR(unittest.TestCase):
         # tag::add-corporate-action-portfolio[]
         transaction_portfolios_api.upsert_portfolio_details(
             scope=scope,
-            code=portfolio_code,
+            code=portfolio_code_with_shk,
             effective_at=created_date,
             create_portfolio_details=lusid.models.CreatePortfolioDetails(
                 corporate_action_source_id=lusid.ResourceId(
@@ -975,23 +975,23 @@ class IBOR(unittest.TestCase):
                     "Instrument/default/Figi": "BBG00ZGF7HS6"
                 },
                 units_factor=1,
-                cost_factor=0,
+                cost_factor=1,
             ),
             output_transitions=[lusid.models.CorporateActionTransitionComponentRequest(
                 instrument_identifiers={
                     "Instrument/default/Currency": "USD"
                 },
                 units_factor=10,
-                cost_factor=0,
+                cost_factor=1,
             )]
         )
         # end::create-transition[]
 
         # tag::upsert-transition[]
-        announcement_date = datetime(year=2020, month=2, day=1, tzinfo=pytz.UTC).isoformat()
-        ex_date = datetime(year=2020, month=2, day=2, tzinfo=pytz.UTC).isoformat()
-        record_date = datetime(year=2020, month=2, day=3, tzinfo=pytz.UTC).isoformat()
-        payment_date = datetime(year=2020, month=2, day=4, tzinfo=pytz.UTC).isoformat()
+        announcement_date = datetime(year=2020, month=2, day=1, tzinfo=pytz.UTC)
+        ex_date = datetime(year=2020, month=2, day=2, tzinfo=pytz.UTC)
+        record_date = datetime(year=2020, month=2, day=3, tzinfo=pytz.UTC)
+        payment_date = datetime(year=2020, month=2, day=4, tzinfo=pytz.UTC)
 
         dividend_coinbase = lusid.models.UpsertCorporateActionRequest(
                 corporate_action_code="ca001",
@@ -1007,6 +1007,33 @@ class IBOR(unittest.TestCase):
             upsert_corporate_action_request=[dividend_coinbase]
         )
         # end::upsert-transition[]
+
+        # tag::format-output-transactions[]
+        def display_transactions_summary(response):
+            return pd.DataFrame([{
+                "Settlement Date": value.settlement_date.strftime("%Y-%m-%d"),
+                "SHK": value.properties[strategy_property_key].value.label_value,
+                "Instrument": value.properties["Instrument/default/Name"].value.label_value,
+                "Units": value.units,
+                "Amount": value.transaction_amount,
+                "Currency": value.transaction_currency,
+                "Type": value.type,
+            } for value in response.values])
+
+        # end::format-output-transactions[]
+
+        # tag::get-output-transactions[]
+        response = transaction_portfolios_api.build_transactions(
+            scope=scope,
+            code=portfolio_code_with_shk,
+            transaction_query_parameters=lusid.models.TransactionQueryParameters(
+                start_date=datetime(year=2019, month=12, day=31, tzinfo=pytz.UTC),
+                end_date=datetime(year=2020, month=2, day=4, tzinfo=pytz.UTC)
+            ),
+            property_keys=["Instrument/default/Name"])
+        tx_response = display_transactions_summary(response)
+        # end::get-output-transactions[]
+        self.write_to_test_output(tx_response, "transactions_response_all.csv")
 
         # Adjust holdings
         holdings_file = "data/test_ibor/holdings.csv"

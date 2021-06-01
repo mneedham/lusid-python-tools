@@ -1,0 +1,18 @@
+Settlement Date,SHK,Instrument,Units,Amount,Currency,Type
+2019-12-31,tech,Amazon_Nasdaq_AMZN,75.0,138580.5,USD,AdjustmentIncrease
+2019-12-31,nasdaq-tracker,Amazon_Nasdaq_AMZN,25.0,46193.5,USD,AdjustmentIncrease
+2019-12-31,tech,Apple_Nasdaq_AAPL,150.0,11011.5,USD,AdjustmentIncrease
+2019-12-31,nasdaq-tracker,Apple_Nasdaq_AAPL,150.0,11011.5,USD,AdjustmentIncrease
+2019-12-31,tech,CoinBase_Nasdaq_COIN,100.0,27412.0,USD,AdjustmentIncrease
+2019-12-31,nasdaq-tracker,CoinBase_Nasdaq_COIN,400.0,109648.0,USD,AdjustmentIncrease
+2020-01-01,tech,USD,500000.0,500000.0,USD,FundsIn
+2020-01-01,nasdaq-tracker,USD,500000.0,500000.0,USD,FundsIn
+2020-01-02,tech,Amazon_Nasdaq_AMZN,50.0,95144.0,USD,Buy
+2020-01-02,nasdaq-tracker,Amazon_Nasdaq_AMZN,25.0,47572.0,USD,Buy
+2020-01-03,tech,Apple_Nasdaq_AAPL,150.0,11242.5,USD,Buy
+2020-01-03,nasdaq-tracker,Apple_Nasdaq_AAPL,150.0,11242.5,USD,Buy
+2020-01-03,tech,CoinBase_Nasdaq_COIN,100.0,32828.0,USD,Buy
+2020-01-03,nasdaq-tracker,CoinBase_Nasdaq_COIN,400.0,131312.0,USD,Buy
+2020-01-04,tech,Amazon_Nasdaq_AMZN,25.0,46736.0,USD,Buy
+2020-02-04,tech,USD,2000.0,2000.0,USD,Dividend
+2020-02-04,nasdaq-tracker,USD,8000.0,8000.0,USD,Dividend
