@@ -1,7 +1,7 @@
-instrument_name,currency,figi,units,strategy
-Amazon_Nasdaq_AMZN,USD,BBG000BVPXP1,75,tech
-Amazon_Nasdaq_AMZN,USD,BBG000BVPXP1,25,nasdaq-tracker
-Apple_Nasdaq_AAPL,USD,BBG000B9XVV8,150,tech
-Apple_Nasdaq_AAPL,USD,BBG000B9XVV8,150,nasdaq-tracker
-CoinBase_Nasdaq_COIN,USD,BBG00ZGF7HS6,100,tech
-CoinBase_Nasdaq_COIN,USD,BBG00ZGF7HS6,400,nasdaq-tracker
+instrument_name,currency,figi,units,net_money,strategy
+Amazon_Nasdaq_AMZN,USD,BBG000BVPXP1,75,138580.5,tech
+Amazon_Nasdaq_AMZN,USD,BBG000BVPXP1,25,46193.5,nasdaq-tracker
+Apple_Nasdaq_AAPL,USD,BBG000B9XVV8,150,11011.5,tech
+Apple_Nasdaq_AAPL,USD,BBG000B9XVV8,150,11011.5,nasdaq-tracker
+CoinBase_Nasdaq_COIN,USD,BBG00ZGF7HS6,100,27412,tech
+CoinBase_Nasdaq_COIN,USD,BBG00ZGF7HS6,400,109648,nasdaq-tracker

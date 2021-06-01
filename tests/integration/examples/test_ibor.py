@@ -366,8 +366,8 @@ class IBOR(unittest.TestCase):
                 display_name="Investment strategy",
                 data_type_id=lusid.ResourceId(scope="system", code="string"),
             ))
-        # end::create-sub-holding-key-property[]
         print(response.key)
+        # end::create-sub-holding-key-property[]
         self.assertIsNotNone(response.key)
 
         # tag::portfolio-code-shk[]
@@ -409,6 +409,64 @@ class IBOR(unittest.TestCase):
         portfolio_df.loc[:, "Code"] = initial_new_portfolio_code
         self.write_to_test_output(portfolio_df, "get_new_portfolio.csv")
         self.assertEqual(portfolio.properties[portfolio_manager_property].value.label_value, "David Jones")
+
+        ##################
+        # SET INITIAL HOLDINGS
+        ##################
+
+        # tag::holdings-file[]
+        holdings_file = "data/test_ibor/holdings.csv"
+        # end::holdings-file[]
+        holdings_file = Path(__file__).parent.joinpath(holdings_file)
+
+        # tag::load-holdings[]
+        holdings = pd.read_csv(holdings_file)
+        # end::load-holdings[]
+        self.write_to_test_output(holdings, "holdings.csv")
+
+        # tag::set-holdings-shk[]
+        holdings_adjustments = [
+            lusid.models.HoldingAdjustment(
+                instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
+                instrument_uid=holding["figi"],
+                sub_holding_keys={
+                    strategy_property_key: lusid.PerpetualProperty(
+                        key=strategy_property_key,
+                        value=lusid.PropertyValue(label_value=holding["strategy"]))
+                },
+                tax_lots=[lusid.models.TargetTaxLot(
+                    units=holding["units"],
+                    cost=lusid.models.CurrencyAndAmount(amount=holding["net_money"], currency=holding["currency"]),
+                )])
+            for _, holding in holdings.iterrows()
+        ]
+        transaction_portfolios_api.set_holdings(
+            scope=scope,
+            code=portfolio_code_with_shk,
+            effective_at=datetime(2019, 12, 31, tzinfo=pytz.UTC),
+            adjust_holding_request=holdings_adjustments
+        )
+        # end::set-holdings-shk[]
+
+        # tag::set-holdings[]
+        holdings = holdings.groupby(["instrument_name", "figi", "currency"]).sum().reset_index()
+        holdings_adjustments = [
+            lusid.models.HoldingAdjustment(
+                instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
+                instrument_uid=holding["figi"],
+                tax_lots=[lusid.models.TargetTaxLot(
+                    units=holding["units"],
+                    cost=lusid.models.CurrencyAndAmount(amount=holding["net_money"], currency=holding["currency"]),
+                )])
+            for _, holding in holdings.iterrows()
+        ]
+        transaction_portfolios_api.set_holdings(
+            scope=scope,
+            code=portfolio_code,
+            effective_at=datetime(2019, 12, 31, tzinfo=pytz.UTC),
+            adjust_holding_request=holdings_adjustments
+        )
+        # end::set-holdings[]
 
         ##################
         # TRANSACTIONS
@@ -529,14 +587,14 @@ class IBOR(unittest.TestCase):
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-funds-loaded[]
         self.write_to_test_output(holdings, "holdings_funds_loaded.csv")
-        self.assertEqual(holdings.shape[0], 1)
+        self.assertEqual(holdings.shape[0], 4)
 
         holding_response = hold.day1_trading(transaction_portfolios_api, scope, portfolio_code)
         # tag::get-holdings-first-day-trading[]
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-first-day-trading[]
         self.write_to_test_output(holdings, "holdings_first_day_trading.csv")
-        self.assertEqual(holdings.shape[0], 2)
+        self.assertEqual(holdings.shape[0], 4)
 
         holding_response = hold.day2_trading(transaction_portfolios_api, scope, portfolio_code)
         # tag::get-holdings-second-day-trading[]
@@ -558,7 +616,7 @@ class IBOR(unittest.TestCase):
         # end::get-holdings-positions[]
         self.write_to_test_output(holdings, "holdings_positions.csv")
         self.assertEqual(holdings.shape[0], 3)
-        self.assertAlmostEqual(holdings[holdings["Instrument"] == "Amazon_Nasdaq_AMZN"]["Units"].values[0], 100.0, 3)
+        self.assertAlmostEqual(holdings[holdings["Instrument"] == "Amazon_Nasdaq_AMZN"]["Units"].values[0], 200.0, 3)
 
         # tag::format-holdings-shk[]
         def display_holdings_shk_summary(response):
@@ -576,14 +634,14 @@ class IBOR(unittest.TestCase):
         holdings = display_holdings_shk_summary(holding_response)
         # end::get-holdings-funds-loaded-shk[]
         self.write_to_test_output(holdings, "holdings_funds_loaded_shk.csv")
-        self.assertEqual(holdings.shape[0], 2)
+        self.assertEqual(holdings.shape[0], 8)
 
         holding_response = hold.day1_trading(transaction_portfolios_api, scope, portfolio_code_with_shk)
         # tag::get-holdings-first-day-trading-shk[]
         holdings = display_holdings_shk_summary(holding_response)
         # end::get-holdings-first-day-trading-shk[]
         self.write_to_test_output(holdings, "holdings_first_day_trading_shk.csv")
-        self.assertEqual(holdings.shape[0], 4)
+        self.assertEqual(holdings.shape[0], 8)
 
         holding_response = hold.day2_trading(transaction_portfolios_api, scope, portfolio_code_with_shk)
         # tag::get-holdings-second-day-trading-shk[]
@@ -606,7 +664,7 @@ class IBOR(unittest.TestCase):
         self.write_to_test_output(holdings, "holdings_positions_shk.csv")
         self.assertEqual(holdings.shape[0], 6)
         amazon = holdings[(holdings["Instrument"] == "Amazon_Nasdaq_AMZN") & (holdings["SHK"] == "tech")]
-        self.assertAlmostEqual(amazon["Units"].values[0], 75.0, 3)
+        self.assertAlmostEqual(amazon["Units"].values[0], 150.0, 3)
 
         # Bit of hackery so that we use portfolio_code for both portfolios in the docs
         # tag::portfolio-code-shk-override[]
@@ -695,7 +753,7 @@ class IBOR(unittest.TestCase):
         valuation_all = pd.DataFrame(response)
         # end::get-valuation-total[]
         self.write_to_test_output(valuation_all, "valuation-all.csv")
-        self.assertAlmostEqual(valuation_all["Sum(Holding/default/PV)"].values[0], 1156135, 3)
+        self.assertAlmostEqual(valuation_all["Sum(Holding/default/PV)"].values[0], 1688347, 3)
 
         # tag::get-valuation-total-multiple-days[]
         date_from = datetime(year=2021, month=4, day=21, tzinfo=pytz.UTC)
@@ -704,7 +762,7 @@ class IBOR(unittest.TestCase):
         valuation_multiple_days = pd.DataFrame(response).sort_values(["Analytic/default/ValuationDate"])
         # end::get-valuation-total-multiple-days[]
         self.write_to_test_output(valuation_multiple_days, "valuation-all-multiple-days.csv")
-        self.assertAlmostEqual(valuation_multiple_days["Sum(Holding/default/PV)"].values[1], 1141134.0, 3)
+        self.assertAlmostEqual(valuation_multiple_days["Sum(Holding/default/PV)"].values[1], 1658345.0, 3)
 
         # tag::get-valuation-by-instrument[]
         metrics = [
@@ -722,7 +780,8 @@ class IBOR(unittest.TestCase):
         valuation = pd.DataFrame(response)
         # end::get-valuation-20210421[]
         self.write_to_test_output(valuation, "valuation-20210421.csv")
-        self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.53966, 3)
+        amazon = valuation[valuation["Instrument/default/Name"] == "Amazon_Nasdaq_AMZN"]
+        self.assertAlmostEqual(amazon["Proportion(Holding/default/PV)"].values[0], 0.3982, 3)
 
         # tag::get-valuation-20210422[]
         effective_at = datetime(year=2021, month=4, day=22, tzinfo=pytz.UTC)
@@ -730,7 +789,8 @@ class IBOR(unittest.TestCase):
         valuation = pd.DataFrame(response)
         # end::get-valuation-20210422[]
         self.write_to_test_output(valuation, "valuation-20210422.csv")
-        self.assertAlmostEqual(valuation["Proportion(Holding/default/PV)"][0], 0.5467, 3)
+        amazon = valuation[valuation["Instrument/default/Name"] == "Amazon_Nasdaq_AMZN"]
+        self.assertAlmostEqual(amazon["Proportion(Holding/default/PV)"][0], 0.39907, 3)
 
         portfolio_code = portfolio_code_with_shk
         # tag::get-valuation-total-shk[]
@@ -930,21 +990,10 @@ class IBOR(unittest.TestCase):
         )
         # end::upsert-transition[]
 
-        # Explicitly set holdings
-
-        # tag::holdings-file[]
+        # Adjust holdings
         holdings_file = "data/test_ibor/holdings.csv"
-        # end::holdings-file[]
         holdings_file = Path(__file__).parent.joinpath(holdings_file)
-
-        # tag::load-holdings[]
         holdings = pd.read_csv(holdings_file)
-        # end::load-holdings[]
-        self.write_to_test_output(holdings, "holdings.csv")
-
-        # tag::set-holdings-api[]
-        transaction_portfolios_api = api_factory.build(lusid.api.TransactionPortfoliosApi)
-        # end::set-holdings-api[]
 
         # tag::adjust-holdings[]
         holdings_adjustments = [
@@ -966,27 +1015,6 @@ class IBOR(unittest.TestCase):
             adjust_holding_request=holdings_adjustments
         )
         # end::adjust-holdings[]
-
-        # tag::set-holdings[]
-        holdings_adjustments = [
-            lusid.models.HoldingAdjustment(
-                instrument_identifiers={"Instrument/default/Figi": holding["figi"]},
-                instrument_uid=holding["figi"],
-                sub_holding_keys={
-                    strategy_property_key: lusid.PerpetualProperty(
-                        key=strategy_property_key,
-                        value=lusid.PropertyValue(label_value=holding["strategy"]))
-                },
-                tax_lots=[lusid.models.TargetTaxLot(units=holding["units"])])
-            for _, holding in holdings.iterrows()
-        ]
-        transaction_portfolios_api.set_holdings(
-            scope=scope,
-            code=portfolio_code,
-            effective_at=datetime(2020, 1, 1, tzinfo=pytz.UTC),
-            adjust_holding_request=holdings_adjustments
-        )
-        # end::set-holdings[]
 
         portfolios_api.delete_portfolio(scope, portfolio_code)
         portfolios_api.delete_portfolio(scope, portfolio_code_with_shk)

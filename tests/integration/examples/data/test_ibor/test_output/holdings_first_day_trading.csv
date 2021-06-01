@@ -1,3 +1,5 @@
 Instrument,Amount,Units,Type
+Amazon_Nasdaq_AMZN,327490.0,175.0,P
+Apple_Nasdaq_AAPL,22023.0,300.0,P
+CoinBase_Nasdaq_COIN,137060.0,500.0,P
 USD,857284.0,857284.0,B
-Amazon_Nasdaq_AMZN,142716.0,75.0,P
