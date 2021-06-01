@@ -558,8 +558,12 @@ class IBOR(unittest.TestCase):
             scope=scope,
             code=portfolio_code,
             property_keys=["Instrument/default/Name"])
-        tx_response = display_transactions_summary(response)
         # end::get-transactions[]
+
+        # start::format-get-transactions[]
+        tx_response = display_transactions_summary(response)
+        # end::format-get-transactions[]
+
         self.write_to_test_output(tx_response, "transactions_response.csv")
 
         # tag::get-transactions-filter[]
@@ -1030,8 +1034,12 @@ class IBOR(unittest.TestCase):
                 end_date=datetime(year=2020, month=2, day=4, tzinfo=pytz.UTC)
             ),
             property_keys=["Instrument/default/Name"])
-        tx_response = display_transactions_summary(response)
         # end::get-output-transactions[]
+
+        # tag::format-get-output-transactions[]
+        tx_response = display_transactions_summary(response)
+        # end::format-get-output-transactions[]
+
         self.write_to_test_output(tx_response, "transactions_response_all.csv")
 
         # Adjust holdings
