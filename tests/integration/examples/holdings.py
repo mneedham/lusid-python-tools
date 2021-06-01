@@ -56,7 +56,7 @@ def latest_day_trading(transaction_portfolios_api, scope, portfolio_code):
         scope=scope,
         code=portfolio_code,
         property_keys=["Instrument/default/Name"],
-        effective_at=datetime(year=2020, month=1, day=3, hour=1, tzinfo=pytz.UTC),
+        effective_at=datetime(year=2020, month=2, day=1, hour=1, tzinfo=pytz.UTC),
     )
     # end::get-holdings-today[]
     return holding_response

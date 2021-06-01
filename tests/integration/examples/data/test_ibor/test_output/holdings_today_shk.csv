@@ -1,9 +1,9 @@
 Instrument,SHK,Amount,Units,Type
-Amazon_Nasdaq_AMZN,tech,233724.5,125.0,P
+Amazon_Nasdaq_AMZN,tech,280460.5,150.0,P
 Amazon_Nasdaq_AMZN,nasdaq-tracker,93765.5,50.0,P
 Apple_Nasdaq_AAPL,tech,22254.0,300.0,P
 Apple_Nasdaq_AAPL,nasdaq-tracker,22254.0,300.0,P
 CoinBase_Nasdaq_COIN,tech,60240.0,200.0,P
 CoinBase_Nasdaq_COIN,nasdaq-tracker,240960.0,800.0,P
-USD,tech,360785.5,360785.5,B
+USD,tech,314049.5,314049.5,B
 USD,nasdaq-tracker,309873.5,309873.5,B

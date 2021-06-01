@@ -591,7 +591,7 @@ class IBOR(unittest.TestCase):
         holdings = display_holdings_summary(holding_response)
         # end::get-holdings-set-holdings[]
         self.write_to_test_output(holdings, "holdings_set_holdings.csv")
-        self.assertEqual(holdings.shape[0], 4)
+        self.assertEqual(holdings.shape[0], 3)
 
         holding_response = hold.funds_loaded(transaction_portfolios_api, scope, portfolio_code)
         # tag::get-holdings-funds-loaded[]
