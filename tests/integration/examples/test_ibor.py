@@ -1016,7 +1016,6 @@ class IBOR(unittest.TestCase):
                 "Instrument": value.properties["Instrument/default/Name"].value.label_value,
                 "Units": value.units,
                 "Amount": value.transaction_amount,
-                "Currency": value.transaction_currency,
                 "Type": value.type,
             } for value in response.values])
 
